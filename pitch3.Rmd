@@ -1,0 +1,207 @@
+---
+title: "pitch3"
+author: "Jefferson Ong"
+date: "9/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r, include = FALSE}
+library(readr)
+library(tidyverse)
+library(broom)
+library(ggrepel)
+library(moderndive)
+
+vandy <- read.csv("vandy_1.csv")
+vandy2 <- read.csv("vandy_2.csv")
+vandy3 <- read.csv("vandy_3.csv")
+```
+
+```{r}
+vandy3pull <- vandy3 %>%
+  select(RelSpeed, SpinRate, SpinAxis, RelHeight, RelSide, InducedVertBreak, HorzBreak, PlateLocHeight, PlateLocSide)
+
+vandy2pull <- vandy2 %>%
+  select(RelSpeed, SpinRate, SpinAxis, RelHeight, RelSide, InducedVertBreak, HorzBreak, PlateLocHeight, PlateLocSide)
+```
+
+```{r}
+apply(vandy3pull, 2, function(x) any(is.na(x)))
+```
+
+
+
+
+# RelSpeed, SpinRate, and SpinAxis with clusters of 2,3, and 4.
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,8:10],2,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,8:10],3,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,8:10],4,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+# RelHeight and RelSide with clusters of 2,3, and 4
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,12:13],2,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,12:13],3,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,12:13],4,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+
+# InducedVertBreak and HorzBreak with clusters of 2,3, and 4.
+
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,16:17],2,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,16:17],3,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,16:17],4,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+
+
+# PlateLocHeight and PlateLocSide with clusters of 2,3, and 4
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,18:19],2,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,18:19],3,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```
+
+```{r}
+## K means to determine pitch types
+
+set.seed(1)
+vandy_cluster <- kmeans(vandy[,18:19],4,nstart = 20)
+vandy_cluster
+table(vandy_cluster$cluster, vandy$AutoPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vandy[,c(3:8)], vandy_cluster$cluster, color=T, lwd=2)
+# dev.off()
+```

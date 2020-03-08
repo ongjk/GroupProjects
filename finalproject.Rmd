@@ -1,0 +1,304 @@
+---
+title: Golf Data Analysis - Josh and Jefferson
+output:
+  beamer_presentation:
+    slide_level: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r, include=FALSE}
+library(tidyverse)
+library(aod)
+library(ggplot2)
+```
+
+```{r, include=FALSE}
+golf <- read.csv("Golf_2018.csv")
+## view the first few rows of the data
+head(golf)
+```
+
+
+##Introduction
+
+The topic that we will be researching is PGA performance. 
+
+There are currently just under 200 golfers ranked in the Pro Golf Association. 
+
+The method to obtain these rankings is unknown to us and our goal is to find out which metrics correlate the most with rank. We would like to see what combination of metrics can help us predict rank. We have been given a data set that includes 7 different metrics which we will be using in our research.
+
+We will also check and see if any of these metrics are correlated to each other. 
+
+A description of these metrics will be listed later on.
+
+
+
+
+
+
+
+## The Process
+
+We are going to use golf metric data drom the PGA. 
+
+We have 7 metrics and would like to see which one best predicts ranking.
+
+This will be done through multiple regression analysis and by making a weighted average
+
+
+
+
+
+
+```{r, include=FALSE}
+golf1 <- golf[, -1]
+names(golf1) <- c("name", "rank", "birdie_bogey", "one_putt_pct", "tot_putt_avg", "sand_pct", "gir_pct", "drive_dist", "drive_acc_pct")
+```
+
+
+## Individual Regressions - Birdie/Bogie
+
+Birdie/Bogey Ratio - ratio of birdies to bogeys
+
+```{r, echo = FALSE}
+ggplot(golf1,aes(birdie_bogey, rank)) + geom_point() + 
+  geom_smooth(method = lm) + labs(title = "Rank and Birdie/Bogie Comparison",
+        x = "Birdie/Bogey", y = "Rank")  + scale_y_reverse()
+
+a <- cor.test(golf1$rank, golf1$birdie_bogey)
+```
+
+
+
+## One Putt Percentage - number of one-putts to hole out as a percentage of total holes in a round
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(one_putt_pct, rank)) + geom_point() + 
+  geom_smooth(method = lm) + scale_y_reverse()
+
+b <- cor.test(golf1$rank, golf1$one_putt_pct)
+```
+
+## Total Putt Average- average total putts a golfer has in a round
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(tot_putt_avg, rank)) + geom_point() + 
+  geom_smooth(method = lm)
+
+c <- cor.test(golf1$rank, golf1$tot_putt_avg)
+```
+
+## Sand Percentage-  percentage of sand shots that hit the green
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(sand_pct, rank)) + geom_point() + 
+  geom_smooth(method = lm) + scale_y_reverse()
+
+d <- cor.test(golf1$rank, golf1$sand_pct)
+```
+
+## Green-in-Regulation Percentage - A green is considered hit "in regulation" if any part of the ball is touching the putting surface while the number of strokes taken is at least two fewer than par
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(gir_pct, rank)) + geom_point() + 
+  geom_smooth(method = lm) + scale_y_reverse()
+
+e <- cor.test(golf1$rank, golf1$gir_pct)
+```
+
+## Drive Distance Average- average distance a drive goes when hit off a tee
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(drive_dist, rank)) + geom_point() + 
+  geom_smooth(method = lm) + scale_y_reverse()
+
+f <- cor.test(golf1$rank, golf1$drive_dist)
+```
+
+## Drive Accuracy Percentage- percentage of time a tee shot lands in the fairway
+
+```{r, echo=FALSE}
+ggplot(golf1,aes(drive_acc_pct, rank)) + geom_point() + 
+  geom_smooth(method = lm) + scale_y_reverse()
+
+g <- cor.test(golf1$rank, golf1$drive_acc_pct)
+```
+
+
+## What had any correlation?
+
+Better golfers had a lower birdie/bogie ratio, GIR Percentage, and Drive Distance
+
+There was little or no correlation with One Putt Percentage, Total Putt Average, and Sand Percentage.
+
+Nothing had more than a |.2| correlation coefficient except birdie/bogie and GIR. 
+
+
+
+```{r, include = FALSE }
+a
+b
+c
+d
+e
+f
+g
+
+```
+
+## We took rank out of the equation and saw If we could get a better correlation
+
+
+
+```{r, echo = FALSE}
+ggplot(golf1,aes(gir_pct, birdie_bogey)) + geom_point() + 
+  geom_smooth(method = lm)
+```
+
+```{r, include = FALSE}
+h <- cor.test(golf1$gir_pct, golf1$birdie_bogey)
+h
+```
+
+
+We can also see that drive distance and drive accuracy are have a moderate negative correlation.
+
+```{r, echo = FALSE}
+ggplot(golf1,aes(drive_dist, drive_acc_pct)) + geom_point() + 
+  geom_smooth(method = lm)
+```
+
+```{r, include = FALSE}
+i <- cor.test(golf1$drive_dist, golf1$drive_acc_pct)
+i
+```
+
+
+## GIR and Drive Accuracy are also correlated with a correlation coefficient of .4 which makes sense because they are both accuracy driven stats.
+
+```{r, echo = FALSE}
+ggplot(golf1,aes(gir_pct, drive_acc_pct)) + geom_point() + 
+  geom_smooth(method = lm)
+```
+
+```{r, include = FALSE}
+j <- cor.test(golf1$gir_pct, golf1$drive_acc_pct)
+j
+```
+
+## Multiple Regression
+
+Correalation from best to worst:
+
+gir_pct  -.21
+
+birdie_bogey  -.20
+
+drive_dist  -.15
+
+drive_acc_pct  -.10
+
+tot_putt_avg -.08
+
+sand_pct  -.04
+
+one_putt_pct  .9
+
+
+
+
+## Looking for significance with multivariate model.
+
+
+
+```{r, fig.height=3, fig.width=5}
+model <- lm(rank ~ gir_pct + birdie_bogey + drive_dist + drive_acc_pct + tot_putt_avg + sand_pct, data = golf1)
+summary(model)
+```
+
+- none of the p-value of the F-statistic is < 2.2e-16
+
+- Its comperatively worse to its single regression counterpart
+
+- This means that, none of the predictor variables is significantly related to the outcome variable
+
+## Comparison of F-stastic to single variable
+
+```{r, fig.height=3, fig.width=5}
+model <- lm(rank ~ birdie_bogey, data = golf1)
+summary(model)
+```
+
+- F- statistics is the variation between sample means / variation within the samples
+
+- birdie_bogey alone has 0.00519. Within the multi. it sits at 0.928
+
+To see which predictor variables are significant, you can examine the coefficients table, which shows the estimate of regression beta coefficients and the associated t-statitic p-values:
+
+
+```{r , fig.height=3, fig.width=5}
+summary(model)$coefficient
+```
+
+It can be seen that, changing in drive_dist, drive_acc_pct variables are slightly associated to changes in rank while changes in birdie_bogey,gir_pct, tot_putt_avg, sand_pct  is not significantly associated with sales.
+
+For a given predictor variable, the coefficient (b) can be interpreted as the average effect on y of a one unit increase in predictor, holding all other predictors fixed.
+
+As the birdie_bogey,gir_pct, tot_putt_avg, sand_pct  variable is not significant, it is possible to remove it from the model
+
+```{r, fig.height=3, fig.width=5}
+model  <- lm(rank ~  drive_dist + drive_acc_pct, data = golf1)
+summary(model)
+```
+
+our model equation can be written as follow: rank =  -457.1481 + 1.4189*drive_dist + 2.0024*drive_acc_pct .
+
+
+```{r, fig.height=3, fig.width=5}
+confint(model)
+```
+
+
+In our example, with drive_dist and drive_acc_pct  predictor variables, the adjusted R2 = 0.04596 , meaning that “0.5%" of the variance in the measure of rank can be predicted by drive_dist and drive_acc_pct.
+
+
+
+## Residual Standard Error
+
+```{r}
+sigma(model)/mean(golf1$rank)
+```
+
+In our multiple regression example, the RSE is 48.96 corresponding to 56% error rate.
+
+
+
+
+
+
+```{r}
+library(dplyr)
+golf2 <- golf1 %>%
+  mutate(ourrank = 2 * gir_pct + 50 * birdie_bogey + 3 * tot_putt_avg - 100 * (birdie_bogey/gir_pct) )
+```
+
+
+## Making a new rank system and comparing it to the one above 
+
+```{r, fig.height=3, fig.width=5, echo = FALSE}
+ggplot(golf2,aes(ourrank, rank)) + geom_point() + 
+  geom_smooth(method = lm)
+```
+
+```{r}
+ourrank <- cor.test(golf2$rank, golf2$ourrank)
+ourrank
+```
+
+

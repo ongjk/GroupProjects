@@ -1,0 +1,465 @@
+---
+title: NCAA Football Rankings
+author: Josh Arford and Jefferson Ong
+date: October 31, 2019
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+
+```{r, include=FALSE, message=FALSE}
+library(tidyverse)
+library(rvest)
+library(readr)
+library(tidyr)
+library(knitr)
+```
+
+
+# 2014 Rankings with code
+
+
+```{r, include=FALSE, message=FALSE}
+
+#Specifying the url for desired website to be scraped
+NCAABowlResults1 <- 'https://www.sports-reference.com/cfb/years/2014-bowls.html'
+
+#Reading the HTML code from the website
+webpage1 <- read_html(NCAABowlResults1)
+
+sb_table1 <- html_nodes(webpage1, 'table')
+hn1 <- html_table(sb_table1)
+r14 <- as.data.frame(hn1)
+
+#Specifying the url for desired website to be scraped
+NCAABowlResults2 <- 'https://www.sports-reference.com/cfb/years/2015-bowls.html'
+
+#Reading the HTML code from the website
+webpage2 <- read_html(NCAABowlResults2)
+
+sb_table2 <- html_nodes(webpage2, 'table')
+hn2 <- html_table(sb_table2)
+r15 <- as.data.frame(hn2)
+
+
+#Specifying the url for desired website to be scraped
+NCAABowlResults3 <- 'https://www.sports-reference.com/cfb/years/2016-bowls.html'
+
+#Reading the HTML code from the website
+webpage3 <- read_html(NCAABowlResults3)
+
+sb_table3 <- html_nodes(webpage3, 'table')
+hn3 <- html_table(sb_table3)
+r16 <- as.data.frame(hn3)
+
+
+#Specifying the url for desired website to be scraped
+NCAABowlResults4 <- 'https://www.sports-reference.com/cfb/years/2017-bowls.html'
+
+#Reading the HTML code from the website
+webpage4 <- read_html(NCAABowlResults4)
+
+sb_table4 <- html_nodes(webpage3, 'table')
+hn4 <- html_table(sb_table4)
+r17 <- as.data.frame(hn4)
+
+
+
+
+#Specifying the url for desired website to be scraped
+NCAABowlResults5 <- 'https://www.sports-reference.com/cfb/years/2018-bowls.html'
+
+#Reading the HTML code from the website
+webpage5 <- read_html(NCAABowlResults5)
+
+sb_table5 <- html_nodes(webpage5, 'table')
+hn5 <- html_table(sb_table5)
+r18 <- as.data.frame(hn5)
+
+bowldata <- rbind(r14, r15, r16, r17, r18)
+
+
+
+```
+
+
+
+```{r, warning=FALSE, message=FALSE, include=FALSE}
+
+rank14 <- read_csv("rank14.csv")
+rank14_2 <- read_csv("raank14_2csv.csv")
+rank14_3 <- read_csv("rank14_3.csv")
+
+rank14all <- merge(rank14, rank14_2, by = 'Name')
+rank14final <- merge(rank14all, rank14_3, by = 'Name')
+rank14final <-  rank14final[1:129,]
+
+rank15 <- read_csv("rankings15_1.csv")
+rank15_2 <- read_csv("rankings15_2.csv")
+rank15_3 <- read_csv("rankings15_3.csv")
+
+rank15all <- merge(rank15, rank15_2, by = 'Name')
+rank15final <- merge(rank15all, rank15_3, by = 'Name')
+rank15final <-  rank15final[1:129,]
+
+rank16 <- read_csv("ranking16_1.csv")
+rank16_2 <- read_csv("ranking16_2.csv")
+rank16_3 <- read_csv("ranking16_3.csv")
+
+rank16all <- merge(rank16, rank16_2, by = 'Name')
+rank16final <- merge(rank16all, rank16_3, by = 'Name')
+rank16final <-  rank16final[1:129,]
+
+rank17 <- read_csv("rankings17_1.csv")
+rank17_2 <- read_csv("rankings17_2.csv")
+rank17_3 <- read_csv("rankings17_3.csv")
+
+rank17all <- merge(rank17, rank17_2, by = 'Name')
+rank17final <- merge(rank17all, rank17_3, by = 'Name')
+rank17final <-  rank17final[1:129,]
+colnames(rank17final)[22] <- "Off"
+
+
+rank18 <- read_csv("ranking18_1.csv")
+rank18_2 <- read_csv("ranking18_2.csv")
+rank18_3 <- read_csv("ranking18_3.csv")
+
+rank18all <- merge(rank18, rank18_2, by = 'Name')
+rank18final <- merge(rank18all, rank18_3, by = 'Name')
+rank18final <-  rank18final[1:129,]
+
+#x is defense and y is offense
+
+```
+
+
+  First we made our equation. We decided to use winning percentage, total offensive yards, and total defensive yards allowed. We multipied winning percentage by 500 so everything was scaled the same. Next, we ordered our ranking column in descending order. We then attached a vector of numbers 1 through 129 to the end of our data frame so everyone had a rank.
+
+
+```{r}
+rank14final2 <- rank14final %>%
+  mutate(Ranking1 = ((Pct * 3300) - (YPG.x * 1) + (YPG.y * .01)))
+rank14f <- rank14final2[order(-rank14final2$Ranking1),]
+Rank <- c(1:129)
+rank14f1 <- cbind(rank14f, Rank)
+rank14final3 <- select(rank14f1, Name, Rank)
+
+kable(rank14f[1:5, c(1, 25)]) 
+```
+
+
+We then had to use string replacement on a few words since the names of the teams were not spelled the same.
+
+```{r}
+rank14finalf <- rank14final3 %>% 
+   mutate(Name = str_replace(Name, "St.", "State"))
+ 
+ rank14finalf<- rank14finalf %>% 
+   mutate(Name = str_replace(Name, "Bowling Green", "Bowling Green State"))
+ rank14finalf<- rank14finalf %>% 
+  mutate(Name = str_replace(Name, "  NC State", "North Carolina State"))
+ rank14finalf<- rank14finalf %>% 
+   mutate(Name = str_replace(Name, "Western Ky.", "Western Kentucky"))
+ rank14finalf<- rank14finalf %>% 
+   mutate(Name = str_replace(Name, "Central Mich.", "Central Michigan"))
+ rank14finalf<- rank14finalf %>% 
+   mutate(Name = str_replace(Name, "Northern Ill.", "Northern Illinois"))
+ rank14finalf<- rank14finalf %>% 
+   mutate(Name = str_replace(Name, "Western Mich.", "Western Michigan"))
+rank14finalg <- rank14finalf
+
+```
+
+  Next, merged this with the bowl game data by name. We had to do it twice so the winners and losers each had a seperate rank column.
+
+```{r}
+names(rank14finalf) <- c("Var.4", "Rank1")
+names(rank14finalg) <- c("Var.6", "Rank2")
+
+kable(rank14finalf[1:25, ]) 
+
+
+rank14end <- merge(r14, rank14finalf, by = "Var.4")
+rank14end1 <- merge(rank14end, rank14finalg, by = "Var.6")
+
+
+
+```
+
+ Then, we subtracted the winners rank from the losers rank. If this gave us a positive integer, then we predicted correctly and a negative integer was an incorrect prediction.
+
+```{r}
+result14 <- mutate(rank14end1, result = Rank2 - Rank1)
+
+kable(result14[1:10, 9:11]) 
+```
+
+ We filtered out the positive numbers, then divided it by total bowl games to give us a percentage that told us how accurate we are
+
+```{r}
+acc14 <- filter(result14, result > 0)
+ratio14 <- (result14$result)
+ratio14_1 <- (acc14$result)
+percentcorrect14 <- (length(ratio14_1)/length(ratio14))
+percentcorrect14
+```
+
+55% Accurate
+
+# 2015 Rankings
+
+
+```{r, include = FALSE}
+rank15final2 <- rank15final %>%
+  mutate(Ranking1 = ((Pct * 3300) - (YPG.x * 1) + (YPG.y * .01)))
+rank15f <- rank15final2[order(-rank15final2$Ranking1),]
+Rank <- c(1:129)
+rank15f1 <- cbind(rank15f, Rank)
+
+rank15final3 <- rank15f1[,c(1, 25)]
+
+rank15finalf <- rank15final3 %>% 
+   mutate(Name = str_replace(Name, "St.", "State"))
+ 
+ rank15finalf<- rank15finalf %>% 
+   mutate(Name = str_replace(Name, "Bowling Green", "Bowling Green State"))
+ rank15finalf<- rank15finalf %>% 
+  mutate(Name = str_replace(Name, "  NC State", "North Carolina State"))
+ rank15finalf<- rank15finalf %>% 
+   mutate(Name = str_replace(Name, "Western Ky.", "Western Kentucky"))
+ rank15finalf<- rank15finalf %>% 
+   mutate(Name = str_replace(Name, "Central Mich.", "Central Michigan"))
+ rank15finalf<- rank15finalf %>% 
+   mutate(Name = str_replace(Name, "Northern Ill.", "Northern Illinois"))
+ rank15finalf<- rank15finalf %>% 
+   mutate(Name = str_replace(Name, "Western Mich.", "Western Michigan"))
+rank15finalg <- rank15finalf
+names(rank15finalf) <- c("Var.4", "Rank1")
+names(rank15finalg) <- c("Var.6", "Rank2")
+
+rank15end <- merge(r15, rank15finalf, by = "Var.4")
+rank15end1 <- merge(rank15end, rank15finalg, by = "Var.6")
+```
+
+
+```{r}
+kable(rank15finalf[1:25, ])
+```
+
+
+```{r}
+result15 <- mutate(rank15end1, result = Rank2 - Rank1)
+acc15 <- filter(result15, result > 0)
+
+ratio15 <- (result15$result)
+length(ratio15)
+ratio15_1 <- (acc15$result)
+percentcorrect15 <- (length(ratio15_1)/length(ratio15))
+percentcorrect15
+```
+
+47% Accurate
+
+
+
+
+
+
+```{r, include = FALSE}
+rank16final2 <- rank16final %>%
+  mutate(Ranking1 = ((Pct * 3300) - (YPG.x * 1) + (YPG.y * .01)))
+rank16f <- rank16final2[order(-rank16final2$Ranking1),]
+Rank <- c(1:129)
+rank16f1 <- cbind(rank16f, Rank)
+rank16final3 <- rank16f1[,c(1, 25)]
+
+rank16finalf <- rank16final3 %>% 
+   mutate(Name = str_replace(Name, "St.", "State"))
+ 
+ rank16finalf<- rank16finalf %>% 
+   mutate(Name = str_replace(Name, "Bowling Green", "Bowling Green State"))
+ rank16finalf<- rank16finalf %>% 
+  mutate(Name = str_replace(Name, "  NC State", "North Carolina State"))
+ rank16finalf<- rank16finalf %>% 
+   mutate(Name = str_replace(Name, "Western Ky.", "Western Kentucky"))
+ rank16finalf<- rank16finalf %>% 
+   mutate(Name = str_replace(Name, "Central Mich.", "Central Michigan"))
+ rank16finalf<- rank16finalf %>% 
+   mutate(Name = str_replace(Name, "Northern Ill.", "Northern Illinois"))
+ rank16finalf<- rank16finalf %>% 
+   mutate(Name = str_replace(Name, "Western Mich.", "Western Michigan"))
+rank16finalg <- rank16finalf
+names(rank16finalf) <- c("Var.4", "Rank1")
+names(rank16finalg) <- c("Var.6", "Rank2")
+
+rank16end <- merge(r16, rank16finalf, by = "Var.4")
+rank16end1 <- merge(rank16end, rank16finalg, by = "Var.6")
+```
+
+
+```{r}
+kable(rank16finalf[1:25, ])
+```
+
+
+```{r, include=FALSE}
+result16 <- mutate(rank16end1, result = Rank2 - Rank1)
+acc16 <- filter(result16, result > 0)
+
+ratio16 <- (result16$result)
+
+ratio16_1 <- (acc16$result)
+percentcorrect16 <- (length(ratio16_1)/length(ratio16))
+percentcorrect16
+```
+
+55% Accurate
+
+
+
+```{r, include = FALSE}
+rank17final2 <- rank17final %>%
+  mutate(Ranking1 = ((Pct * 3300) - (YPG.x * 1) + (YPG.y * .01)))
+rank17f <- rank17final2[order(-rank17final2$Ranking1),]
+Rank <- c(1:129)
+rank17f1 <- cbind(rank17f, Rank)
+rank17final3 <- rank17f1[,c(1, 25)]
+
+rank17finalf <- rank17final3 %>% 
+   mutate(Name = str_replace(Name, "St.", "State"))
+ 
+ rank17finalf<- rank17finalf %>% 
+   mutate(Name = str_replace(Name, "Bowling Green", "Bowling Green State"))
+ rank17finalf<- rank17finalf %>% 
+  mutate(Name = str_replace(Name, "  NC State", "North Carolina State"))
+ rank17finalf<- rank17finalf %>% 
+   mutate(Name = str_replace(Name, "Western Ky.", "Western Kentucky"))
+ rank17finalf<- rank17finalf %>% 
+   mutate(Name = str_replace(Name, "Central Mich.", "Central Michigan"))
+ rank17finalf<- rank17finalf %>% 
+   mutate(Name = str_replace(Name, "Northern Ill.", "Northern Illinois"))
+ rank17finalf<- rank17finalf %>% 
+   mutate(Name = str_replace(Name, "Western Mich.", "Western Michigan"))
+rank17finalg <- rank17finalf
+names(rank17finalf) <- c("Var.4", "Rank1")
+names(rank17finalg) <- c("Var.6", "Rank2")
+
+rank17end <- merge(r17, rank17finalf, by = "Var.4")
+rank17end1 <- merge(rank17end, rank17finalg, by = "Var.6")
+```
+
+
+```{r}
+kable(rank17finalf[1:25, ])
+```
+
+
+```{r, include=FALSE}
+result17<- mutate(rank17end1, result = Rank2 - Rank1)
+acc17 <- filter(result17, result > 0)
+
+ratio17 <- (result17$result)
+
+ratio17_1 <- (acc17$result)
+percentcorrect17 <- (length(ratio17_1)/length(ratio17))
+percentcorrect17
+```
+
+54% Accurate
+
+
+
+
+
+```{r, include = FALSE}
+rank18final2 <- rank18final %>%
+  mutate(Ranking1 = ((Pct * 3300) - (YPG.x * 1) + (YPG.y * .01)))
+rank18f <- rank18final2[order(-rank18final2$Ranking1),]
+Rank <- c(1:129)
+rank18f1 <- cbind(rank18f, Rank)
+rank18final3 <- rank18f1[,c(1, 25)]
+
+rank18finalf <- rank18final3 %>% 
+   mutate(Name = str_replace(Name, "St.", "State"))
+ 
+ rank18finalf<- rank18finalf %>% 
+   mutate(Name = str_replace(Name, "Bowling Green", "Bowling Green State"))
+ rank18finalf<- rank18finalf %>% 
+  mutate(Name = str_replace(Name, "  NC State", "North Carolina State"))
+ rank18finalf<- rank18finalf %>% 
+   mutate(Name = str_replace(Name, "Western Ky.", "Western Kentucky"))
+ rank18finalf<- rank18finalf %>% 
+   mutate(Name = str_replace(Name, "Central Mich.", "Central Michigan"))
+ rank18finalf<- rank18finalf %>% 
+   mutate(Name = str_replace(Name, "Northern Ill.", "Northern Illinois"))
+ rank18finalf<- rank18finalf %>% 
+   mutate(Name = str_replace(Name, "Western Mich.", "Western Michigan"))
+rank18finalg <- rank18finalf
+names(rank18finalf) <- c("Var.4", "Rank1")
+names(rank18finalg) <- c("Var.6", "Rank2")
+```
+
+```{r}
+kable(rank18finalf[1:25, ])
+```
+
+```{r, include = FALSE}
+rank18end <- merge(r18, rank18finalf, by = "Var.4")
+rank18end1 <- merge(rank18end, rank18finalg, by = "Var.6")
+result18 <- mutate(rank18end1, result = Rank2 - Rank1)
+acc18 <- filter(result18, result > 0)
+
+ratio18 <- (result18$result)
+
+ratio18_1 <- (acc18$result)
+percentcorrect18 <- (length(ratio18_1)/length(ratio18))
+percentcorrect18
+```
+
+57% Accurate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

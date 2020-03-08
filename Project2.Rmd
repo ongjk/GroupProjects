@@ -1,0 +1,182 @@
+---
+title: "Baseball"
+author: "Josh Arford"
+date: "8/20/2019"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(Lahman)
+list(LahmanData)
+list(Teams)
+list(Teams$name)
+library(moderndive)
+```
+
+#Filtering the Data
+
+```{r}
+lahman1999 <- filter(Teams, yearID > 1999 & yearID < 2018)
+# lahman1999
+# lahman1999 %>% mutate(WP = W/G)
+lahman <- lahman1999 %>% mutate(WP = (W/G),
+                      TB = (H + (X2B) + (2 * X3B) + (3*HR)), 
+                      OPS = (TB/AB) + ((H + BB + HBP) / (AB + BB + SF + HBP)),
+                      BABIP = ((H - HR) / (AB - SO - HR + SF)))
+
+
+```
+
+#Filtering the Data
+
+```{r}
+col <- filter(lahman, teamID == "COL")
+bos <- filter(lahman, teamID == "BOS")
+atl <- filter(lahman, teamID == "ATL")
+phi <- filter(lahman, teamID == "PHI")
+min <- filter(lahman, teamID == "MIN")
+lahmanfin <- filter(lahman, teamID == "COL" | teamID == "BOS" | teamID == "ATL" | teamID == "PHI" | teamID == "MIN" )
+
+```
+
+# Individual OPS by year
+
+```{r}
+ggplot(col, aes(x = yearID, y = OPS, col = "temID")) + geom_line(color = "darkred") + xlab("Year") + ylab("OPS") + ggtitle(expression("OPS from 1999 - 2017 (Colorado)")) 
+
+ggplot(bos, aes(x = yearID, y = OPS, col = teamID)) + geom_line(color = "darkblue") + xlab("Year") + ylab("OPS") + ggtitle(expression("OPS from 1999 - 2017 (Boston) ")) 
+
+ggplot(atl, aes(x = yearID, y = OPS, col = teamID)) + geom_line(color = "green") + xlab("Year") + ylab("OPS") + ggtitle(expression("OPS from 1999 - 2017 (Atlanta)")) 
+
+ggplot(phi, aes(x = yearID, y = OPS, col = teamID)) + geom_line(color = "gold") + xlab("Year") + ylab("OPS") + ggtitle(expression("OPS from 1999 - 2017 (Philly)")) 
+
+ggplot(min, aes(x = yearID, y = OPS, col = teamID)) + geom_line(color = "grey") + xlab("Year") + ylab("OPS") + ggtitle(expression("OPS from 1999 - 2017 (Minnesota)")) 
+
+```
+
+# Individual BABIP by Year
+
+```{r}
+ggplot(col, aes(x = yearID, y = BABIP, col = teamID)) + geom_line(color = "darkred") + xlab("Year") + ylab("BABIP") + ggtitle(expression("BABIP from 1999 - 2017 (Colorado)")) 
+
+ggplot(bos, aes(x = yearID, y = BABIP, col = teamID)) + geom_line(color = "darkblue") + xlab("Year") + ylab("BABIP") + ggtitle(expression("BABIP from 1999 - 2017 (Boston) ")) 
+
+ggplot(atl, aes(x = yearID, y = BABIP, col = teamID)) + geom_line(color = "green") + xlab("Year") + ylab("BABIP") + ggtitle(expression("BABIP from 1999 - 2017 (Atlanta)")) 
+
+ggplot(phi, aes(x = yearID, y = BABIP, col = teamID)) + geom_line(color = "gold") + xlab("Year") + ylab("BABIP") + ggtitle(expression("BABIP from 1999 - 2017 (Philly)")) 
+
+ggplot(min, aes(x = yearID, y = BABIP, col = teamID)) + geom_line(color = "grey") + xlab("Year") + ylab("BABIP") + ggtitle(expression("BABIP from 1999 - 2017 (Minnesota)")) 
+
+```
+
+
+#All Teams OPS
+
+```{r}
+ggplot(lahmanfin, aes(x = yearID, y = OPS, col = teamID)) + 
+  geom_point() + 
+  geom_smooth(method = "loess", se = FALSE) +
+  xlab("Year") + 
+  ylab("On-Base plus Slugging") + 
+  ggtitle(expression("On-Base plus Slugging from 1999 - Present")) 
+
+```
+
+#All Teams BABIP
+
+```{r}
+ggplot(lahmanfin, aes(x = yearID, y = BABIP, col = teamID)) + 
+  geom_point() + 
+  geom_smooth(method = "loess", se = FALSE) +
+  xlab("Year") + 
+  ylab("On-Base plus Slugging") + 
+  ggtitle(expression("On-Base plus Slugging from 1999 - Present")) 
+```
+
+# Filtering the Years
+
+```{r}
+lahman2000 <- filter(Teams, yearID == 2000)
+
+lahman2007 <- filter(Teams, yearID == 2007)
+
+lahman2015 <- filter(Teams, yearID == 2015)
+
+```
+
+
+OPS vs WP
+
+```{r}
+lahman2000A <- lahman2000 %>% mutate(WP = (W/G),
+                      TB = (H + (X2B) + (2 * X3B) + (3*HR)), 
+                      OPS = (TB/AB) + ((H + BB + HBP) / (AB + BB + SF + HBP)),
+                      BABIP = ((H - HR) / (AB - SO - HR + SF)))
+
+lahman2007A <- lahman2007 %>% mutate(WP = (W/G),
+                      TB = (H + (X2B) + (2 * X3B) + (3*HR)), 
+                      OPS = (TB/AB) + ((H + BB + HBP) / (AB + BB + SF + HBP)),
+                      BABIP = ((H - HR) / (AB - SO - HR + SF)))
+
+lahman2015A <- lahman2015 %>% mutate(WP = (W/G),
+                      TB = (H + (X2B) + (2 * X3B) + (3*HR)), 
+                      OPS = (TB/AB) + ((H + BB + HBP) / (AB + BB + SF + HBP)),
+                      BABIP = ((H - HR) / (AB - SO - HR + SF)))
+
+
+ggplot(lahman2000A, aes(x = OPS, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("OPS vs WP (2000)")) 
+
+ggplot(lahman2007A, aes(x = OPS, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("OPS vs WP (2007)")) 
+
+ggplot(lahman2015A, aes(x = OPS, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("OPS vs WP (2015)")) 
+
+
+```
+
+
+# BABIP vs WP
+
+```{r}
+ggplot(lahman2000A, aes(x = BABIP, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("BABIP vs WP (2000)")) 
+
+ggplot(lahman2007A, aes(x = BABIP, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("BABIP vs WP (2007)")) 
+
+ggplot(lahman2015A, aes(x = BABIP, y = WP)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  xlab("OPS") + 
+  ylab("WP") + 
+  ggtitle(expression("BABIP vs WP (2015)")) 
+```
+
+
+
+

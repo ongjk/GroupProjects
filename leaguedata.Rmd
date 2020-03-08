@@ -1,0 +1,96 @@
+---
+title: "league data"
+author: "Jefferson Ong"
+date: "9/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library("readxl")
+
+league2017 <- read_excel("2017matchdataOraclesElixir.xlsx")
+```
+
+```{r}
+names(league2017)
+```
+
+```{r}
+# league2017 %>%
+#   filter(team == "Dignitas") %>%
+#  summarize(nchar(result))
+
+sum(nchar((league2017$result)))
+
+league2017 <- league2017 %>%
+  mutate(RD = ((k + (a/3))/d), W =  sum(result) / nchar(result))
+
+
+ list(league2017)
+```
+```{r}
+league2017 %>%
+  filter(player == "Lourlo") %>%
+  summarise(length(result), sum(result))
+
+
+```
+
+
+```{r}
+list(league2017$Wpct)
+```
+
+fivethirtyeight nate silver
+
+
+```{r}
+league2017 <- league2017 %>%
+  mutate(RD = ((k + (a/3))/d), Wpct =  (sum(result)/(length(result)))) %>%
+  filter_all(all_vars(!is.infinite(.)))
+
+run_diff <- ggplot(league2017, aes(x = RD, y = Wpct)) +
+  geom_point() +
+  scale_x_continuous("Run Differential") +
+  scale_y_continuous("Winning Percentage")
+run_diff
+
+linfit <- lm(Wpct~RD, data = league2017)
+linfit
+
+run_diff + geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(linfit)
+
+ggplot(get_regression_points(linfit), aes(x = residual)) +
+  geom_histogram() 
+
+ggplot(get_regression_points(linfit), aes(sample = residual)) + 
+  geom_qq() +
+  geom_qq_line(color = "red")
+
+
+##Pythagorean Formula
+
+league2017 <- league2017 %>%
+  mutate(Wpct_pyth = R^2 / (R^2 + RA^2))
+
+league2017 <- league2017 %>%
+  mutate(residuals_pyth = Wpct - Wpct_pyth)
+
+league2017 %>%
+  summarize(rmse = sqrt(mean(residuals_pyth^2)))
+
+pyth_plot <- ggplot(league2017, aes(x = Wpct_pyth, y = Wpct)) +
+  geom_point() +
+  scale_x_continuous("Pythagorean Diff") +
+  scale_y_continuous("Winning Percentage")
+pyth_plot
+
+pyth_plot + geom_smooth(method = "lm", se = FALSE)
+```

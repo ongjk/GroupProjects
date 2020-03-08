@@ -1,0 +1,25 @@
+---
+title: "test markdown"
+author: "Jefferson Ong"
+date: "8/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+library(Lahman)
+
+library(moderndive)
+```
+
+
+
+
+```{r}
+list(LahmanData)
+```
+

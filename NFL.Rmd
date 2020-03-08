@@ -1,0 +1,81 @@
+---
+title: "Steelers"
+author: Josh Arford
+output:
+  html_document:
+    theme: united
+    highlight: tango
+    toc: true
+    code_folding: hide
+---
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(jpeg)
+library(png)
+library(grid)
+
+
+
+```
+
+```{r}
+League <- c(82.8, 80.1, 80.4, 82.6, 83.2, 83.0, 84.1, 84.3, 85.6, 86.0, 88.9, 90.2, 89.3, 86.9, 92.9 )
+Rating <- c(98.1, 98.6, 75.4, 104.1, 80.1, 100.5, 97.0, 90.1, 97.0, 92.0, 103.3, 94.5, 95.4, 93.4, 95.5)
+Year <- c(2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018) 
+q <-  data.frame(Year, League)
+p <- data.frame(Year, Rating, League)
+p
+img <- readPNG("ben.png")
+g <- rasterGrob(img, interpolate=TRUE)
+
+ 
+ggplot() + annotation_custom(g, xmin=2016, xmax=2020, ymin=75, ymax=87) + geom_label(x= 2015, y = 79, label="League Average")  +
+  geom_point(aes(x = Year, y = Rating), col = "gold", shape = 19, size = 3) +
+  scale_x_continuous(breaks = seq(2004, 2020), 
+                     labels = c("2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"), limits = c(2004, 2020)) +
+  ggtitle(expression("BEN ROETHLISBERGER'S YEARLY RATING VS. REST OF LEAGUE (QB)")) +
+  ylab("Rating") +
+  xlab("YEAR") + geom_line(aes(x = Year, y = League), color = "black", lwd = 2)  + theme_dark()
+
+
+```
+
+```{r}
+player <- c("Franco Harris", "Jerome Bettis", "Willie Parker", "Le'Veon Bell", "John Henry Johnson", "Frank Pollard", "Dick Hoak", "Barry Foster", "Rocky Bleier", "Rashard Mendenhall", "James Conner")
+TD <- c(.031, .029, .019, .028, .025, .021, .022, .028, .025, .033, .048)
+YPC <- c(4.1, 3.9, 4.3, 4.3, 4.4, 4.2, 3.5, 4.3, 4.2, 4.1, 4.5)
+FUM <- c(.031, .010, .013, .006, .026, .031, .027, .021, .034, .010, .016)
+REC <- c(13.8, 5.6, 8.8, 42.9, 12.1, 7.9, 10.8, 13.0, 9.2, 11.6, 18.4)
+d <- data.frame(TD, YPC, FUM, REC)
+rownames(d) <- c("Franco Harris", "Jerome Bettis", "Willie Parker", "Le'Veon Bell", "John Henry Johnson", "Frank Pollard", "Dick Hoak", "Barry Foster", "Rocky Bleier", "Rashard Mendenhall", "James Conner")
+
+
+heatmap(as.matrix(d), scale = "column", col = heat.colors(12), Rowv = NA, Colv = NA) 
+
+
+
+```
+
+```{r}
+energy <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+fish <- 3
+totalfish <- energy*fish
+p <- data.frame(energy, totalfish)
+p
+library(jpeg)
+my_image=readJPEG("salmon.jpg")
+ 
+# Set up a plot area with no plot
+plot(p, type='n', main="AMOUNT OF FISH CAUGHT WHEN ENERGY = 3", xlab="TIME", ylab="FISH")
+ 
+# Get the plot information so the image will fill the plot box, and draw it
+lim <- par()
+rasterImage(my_image, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
+grid()
+ 
+#Add your plot !
+lines(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), c(3, 6, 9, 12, 15, 18, 21, 24, 27, 30), type="b", lwd=5, col="black")
+
+```
+

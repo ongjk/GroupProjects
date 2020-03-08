@@ -1,0 +1,177 @@
+---
+title: "pitch2"
+author: "Josh Arford"
+date: "9/12/2019"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, include = FALSE}
+library(readr)
+library(tidyverse)
+library(broom)
+library(ggrepel)
+library(moderndive)
+library(cluster)
+vandy <- read.csv("vandy_1.csv")
+vandy2 <- read.csv("vandy_2.csv")
+vandy3 <- read.csv("vandy_3.csv")
+```
+
+
+```{r, include=FALSE}
+
+library(dplyr)
+vandy_2 <- select(vandy2, RelSpeed, SpinRate, SpinAxis, RelHeight, RelSide, InducedVertBreak, HorzBreak, PlateLocHeight, PlateLocSide)
+vand2 <- na.omit(vandy_2)
+```
+
+
+# RelHeight and RelSide with clusters of 2,3, and 4
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,1:3], 2, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,1:3], 3, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,1:3], 4, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+
+# RelHeight and RelSide with clusters of 2,3, and 4
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,4:5], 2, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,4:5], 3, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+
+
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,4:5], 4, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# InducedVertBreak and HorzBreak with clusters of 2,3, and 4.
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,6:7], 2, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,6:7], 3, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,6:7], 4, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+
+# PlateLocHeight and PlateLocSide with clusters of 2,3, and 4
+
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,8:9], 2, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,8:9], 3, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+
+```{r}
+set.seed(1)
+cl <- kmeans(vand2[,8:9], 4, nstart = 10)
+
+
+##png(file="kmeansPlot.png", height=500, width=650)
+clusplot(vand2[,c(1:3)], cl$cluster, color=T, lwd=2)
+```
+

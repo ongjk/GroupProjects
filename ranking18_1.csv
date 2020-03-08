@@ -1,0 +1,145 @@
+Rank,Name,W,L,T,Pct
+1,Notre Dame,12,0,0,1
+,UCF,12,0,0,1
+,Clemson,13,0,0,1
+,Alabama,13,0,0,1
+5,Oklahoma,12,1,0,0.923
+,Ohio St.,12,1,0,0.923
+7,Fresno St.,12,2,0,0.857
+8,Utah St.,11,2,0,0.846
+,Georgia,11,2,0,0.846
+,Appalachian St.,11,2,0,0.846
+11,Michigan,10,2,0,0.833
+,Army West Point,10,2,0,0.833
+,Cincinnati,10,2,0,0.833
+,Washington St.,10,2,0,0.833
+15,Washington,10,3,0,0.769
+,Ga. Southern,10,3,0,0.769
+,Buffalo,10,3,0,0.769
+,Boise St.,10,3,0,0.769
+,UAB,10,3,0,0.769
+20,Troy,9,3,0,0.75
+,Syracuse,9,3,0,0.75
+,Penn St.,9,3,0,0.75
+,Florida,9,3,0,0.75
+,LSU,9,3,0,0.75
+,Kentucky,9,3,0,0.75
+,NC State,9,3,0,0.75
+27,West Virginia,8,3,0,0.727
+28,Utah,9,4,0,0.692
+,North Texas,9,4,0,0.692
+,Texas,9,4,0,0.692
+31,Texas A&M,8,4,0,0.667
+,Temple,8,4,0,0.667
+,Stanford,8,4,0,0.667
+,Oregon,8,4,0,0.667
+,Ohio,8,4,0,0.667
+,Mississippi St.,8,4,0,0.667
+,Arkansas St.,8,4,0,0.667
+,Marshall,8,4,0,0.667
+,Iowa St.,8,4,0,0.667
+,Iowa,8,4,0,0.667
+,Houston,8,4,0,0.667
+,FIU,8,4,0,0.667
+,Missouri,8,4,0,0.667
+44,Northwestern,8,5,0,0.615
+,Hawaii,8,5,0,0.615
+,Memphis,8,5,0,0.615
+,Northern Ill.,8,5,0,0.615
+48,Toledo,7,5,0,0.583
+,Auburn,7,5,0,0.583
+,South Carolina,7,5,0,0.583
+,San Diego St.,7,5,0,0.583
+,Nevada,7,5,0,0.583
+,Michigan St.,7,5,0,0.583
+,Miami (FL),7,5,0,0.583
+,Louisiana Tech,7,5,0,0.583
+,Wisconsin,7,5,0,0.583
+,Western Mich.,7,5,0,0.583
+,Virginia,7,5,0,0.583
+,Duke,7,5,0,0.583
+,Georgia Tech,7,5,0,0.583
+,California,7,5,0,0.583
+,Boston College,7,5,0,0.583
+,South Fla.,7,5,0,0.583
+64,Middle Tenn.,8,6,0,0.571
+65,Southern Miss.,6,5,0,0.545
+66,Tulane,7,6,0,0.538
+,Arizona St.,7,6,0,0.538
+,Eastern Mich.,7,6,0,0.538
+,Pittsburgh,7,6,0,0.538
+70,TCU,6,6,0,0.5
+,Louisiana,7,7,0,0.5
+,Purdue,6,6,0,0.5
+,Oklahoma St.,6,6,0,0.5
+,La.-Monroe,6,6,0,0.5
+,Minnesota,6,6,0,0.5
+,Baylor,6,6,0,0.5
+,Wyoming,6,6,0,0.5
+,Wake Forest,6,6,0,0.5
+,Virginia Tech,6,6,0,0.5
+,Vanderbilt,6,6,0,0.5
+,BYU,6,6,0,0.5
+,Miami (OH),6,6,0,0.5
+83,Texas Tech,5,7,0,0.417
+,Air Force,5,7,0,0.417
+,SMU,5,7,0,0.417
+,Southern California,5,7,0,0.417
+,Charlotte,5,7,0,0.417
+,Ole Miss,5,7,0,0.417
+,Maryland,5,7,0,0.417
+,Kansas St.,5,7,0,0.417
+,Indiana,5,7,0,0.417
+,Fla. Atlantic,5,7,0,0.417
+,Florida St.,5,7,0,0.417
+,Colorado,5,7,0,0.417
+,Coastal Caro.,5,7,0,0.417
+,Arizona,5,7,0,0.417
+,Tennessee,5,7,0,0.417
+98,Old Dominion,4,8,0,0.333
+,Nebraska,4,8,0,0.333
+,UNLV,4,8,0,0.333
+,Akron,4,8,0,0.333
+,Illinois,4,8,0,0.333
+,Ball St.,4,8,0,0.333
+,Massachusetts,4,8,0,0.333
+105,Tulsa,3,9,0,0.25
+,UCLA,3,9,0,0.25
+,UTSA,3,9,0,0.25
+,Texas St.,3,9,0,0.25
+,South Alabama,3,9,0,0.25
+,Bowling Green,3,9,0,0.25
+,New Mexico,3,9,0,0.25
+,Western Ky.,3,9,0,0.25
+,East Carolina,3,9,0,0.25
+,Kansas,3,9,0,0.25
+,Colorado St.,3,9,0,0.25
+,New Mexico St.,3,9,0,0.25
+117,Navy,3,10,0,0.231
+118,North Carolina,2,9,0,0.182
+119,Oregon St.,2,10,0,0.167
+,Louisville,2,10,0,0.167
+,Arkansas,2,10,0,0.167
+,Georgia St.,2,10,0,0.167
+,Kent St.,2,10,0,0.167
+124,Rice,2,11,0,0.154
+125,UTEP,1,11,0,0.083
+,San Jose St.,1,11,0,0.083
+,Central Mich.,1,11,0,0.083
+,UConn,1,11,0,0.083
+,Rutgers,1,11,0,0.083
+Reclassifying,,,,,
+NR,Liberty,6,6,0,0.5
+,,,,,
+,,,,,
+"      <script type=""text/javascript"">",,,,,
+"var gaJsHost = ((""https:"" == document.location.protocol) ? ""https://ssl."" : ""http://www."");document.write(unescape(""%3Cscript src='"" + gaJsHost + ""google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E""));",,,,,
+</script>,,,,,
+"<script type=""text/javascript"">",,,,,
+try {,,,,,
+"var pageTracker = _gat._getTracker(""UA-2045383-4"");                        ",,,,,
+pageTracker._trackPageview();                                              ,,,,,
+} catch(err) {},,,,,
+</script>,,,,,
+,,,,,
+      ,,,,,

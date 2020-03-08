@@ -1,0 +1,63 @@
+---
+title: "Baseball"
+author: "Josh Arford"
+date: "8/20/2019"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r, include=FALSE}
+library(tidyverse)
+library(Lahman)
+list(LahmanData)
+list(Teams)
+list(Teams$name)
+library(moderndive)
+```
+
+# Filtering the Data 
+ 
+```{r}
+modern <- filter(Teams, yearID > 1950)
+modern2 <- filter(modern, teamID == "PIT" | teamID == "NYA" )
+modern3 <- filter(modern, teamID == "PIT")
+modern4 <- filter(modern, teamID == "NYA")
+
+
+
+
+```
+
+# Visualization Comparing Wins Using a Scatterplot
+
+```{r}
+ggplot(modern2, aes(x = yearID, y = W, col = teamID)) + geom_point() + geom_smooth(method = "loess", se = FALSE) + xlab("Year") + ylab("Wins") + ggtitle(expression("Wins from 1950 - Present"))
+```
+
+```{r, include=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(jpeg)
+library(png)
+library(grid)
+img2 <- readPNG("marte.png")
+q <- rasterGrob(img2, interpolate=TRUE)
+```
+
+# Visualization of Homeruns Using a Time Series
+
+```{r}
+ggplot(modern2, aes(x = yearID, y = HR, col = teamID)) + geom_line() + xlab("Year") + ylab("Homeruns") + ggtitle(expression("Homeruns from 1950 - Present")) 
+
+
+
+```
+
+
+# Visualization of Fan Attendance Using a Scatterplot
+
+```{r}
+ggplot(modern2, aes(x = yearID, y = attendance, col = teamID)) + geom_point() + geom_smooth(method = "loess", se = FALSE) + xlab("Year") + ylab("Attendance") + ggtitle(expression("Attendance Since 1950")) 
+```
+

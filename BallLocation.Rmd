@@ -1,0 +1,88 @@
+---
+title: "Vandy"
+author: "Abby Smith"
+date: "9/16/2019"
+output: html_document
+---
+
+```{r Setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = FALSE, message = FALSE, warning = FALSE)
+
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(readr)
+library(plotly)
+library(plyr)
+
+vandy_1 <- read_csv("vandy_1.csv")
+
+vandy_2 <- read_csv("vandy_2.csv")
+vandy_3 <- read_csv("vandy_3.csv")
+
+vandy_1 <- vandy_1 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vandy_2 <- vandy_2 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vandy_3 <- vandy_3 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vann <- rbind(vandy_1, vandy_2, vandy_3)
+x <- c(-.95,.95,.95,-.95,-.95)
+z <- c(1.6,1.6,3.5,3.5,1.6)
+sz <- data.frame(x, z)
+
+
+x <- c(-.95,.95,.95,-.95,-.95)
+y <- c(1.6,1.6,3.5,3.5,1.6)
+sz <- data.frame(x, y)
+
+x1 <- c(-.95, -.95, 0, .95, .95, -.95)
+y1 <- c(0, .15, .25, .15, 0, 0)
+hp <- data.frame(x1, y1)
+
+x2 <- c(1.61, 3.11, 3.11, 1.61, 1.61)
+y2 <- c(0, 0, 5.5, 5.5, 0)
+rhb <- data.frame(x2, y2)
+
+x4 <- c(-1.61, -3.11, -3.11, -1.61, -1.61)
+y4 <- c(0, 0, 5.5, 5.5, 0)
+lhb <- data.frame(x2, y2)
+
+x3 <- c(2.36)
+y3 <- c(2.75)
+
+x5 <- c(-2.36)
+y5 <- c(2.75)
+cbPalette <- c("#999999", "#E69F00",  "#009E73",  "#0072B2", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442")
+```
+
+
+```{r}
+v <- ggplot() +
+  geom_path(data = sz, aes(x = x, y = y)) +
+  geom_path(data = rhb, aes(x = x2, y = y2), color = "lightgray") +
+  geom_path(data = lhb, aes(x = x4, y = y4), color = "lightgray") +
+  geom_text(mapping = aes(x = x3, y = y3), label = paste("RHB"), color = "lightgray") +
+  geom_text(mapping = aes(x = x5, y = y5), label = paste("LHB"), color = "lightgray") +
+  geom_polygon(hp, mapping = aes(x = x1, y = y1), color = "black", fill = "white") +
+  coord_equal() +
+  ggtitle("Vandy Pitchers by Pitch Type") +
+  ##geom_point(data = filter(vandy_2, PitchCall == "BallCalled"),
+  geom_point(data = vandy_2,
+             aes(x = PlateLocSide, y = PlateLocHeight, color = TaggedPitchType)) +
+  scale_color_discrete(limits = c("Fastball" ,"ChangeUp", "Splitter", "Curveball", "Slider", "Sinker")) +
+  coord_cartesian(xlim = c(-4.5, 4.5), ylim = c(0, 5.5)) +
+  theme(axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.background = element_blank(),
+      legend.title = element_blank())
+ggplotly(v)
+```

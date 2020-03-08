@@ -1,0 +1,110 @@
+---
+title: "Project 5"
+author: "Jefferson Ong"
+date: "9/19/2019"
+output: html_document
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(readr)
+library(plotly)
+library(plyr)
+library(cluster)
+library(mclust)
+library(qpcR)
+library(data.table)
+library(reshape2)
+
+pitcher1_L <- read_csv("pitcher1_L.csv")
+
+```
+
+```{r}
+pitcher1A_L <- pitcher1_L %>%
+  select(-PlayResult)
+```
+
+
+```{r}
+
+set.seed(1)
+pitcher1_cluster <- kmeans(na.omit(pitcher1A_L)[,3:5],2,nstart = 10)
+pitcher1_cluster$centers
+ 
+
+# table(pitcher1_cluster$cluster, pitcher1A_L$TaggedPitchType)## K means to determine pitch types
+
+##png(file="kmeansPlot.png", height=500, width=650)
+ clusplot(na.omit(pitcher1A_L)[,3:5], pitcher1_cluster$cluster, color = T, lwd = 2)
+```
+
+
+
+```{r}
+lst <- list((pitcher1_cluster$cluster), (pitcher1A_L$TaggedPitchType))
+DT <- setDT(lapply(lst, `length<-`, max(lengths(lst))))
+dcast(DT,V1~V2,fill=0)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

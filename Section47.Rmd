@@ -1,0 +1,178 @@
+---
+title: 'Section 4.7:  2, 4'
+author: "Jefferson Ong"
+date: "9/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(tidyverse)
+library(broom)
+library(ggrepel)
+library(moderndive)
+
+TeamHW <- read.csv('Teams.csv')
+```
+
+```{r}
+max(TeamHW$yearID)
+```
+
+
+#2 (Pythagorean Residuals for Poor and Great Teams in the 19th Century)
+
+As baseball was evolving into its modern form, nineteeth century leagues often featured abysmal teams that did not even succeed in finishing their season, as well as some dominant clubs.
+
+a) Fit a Pythagorean formula model to the run-differential, win-loss data for teams who played in the 19th century.
+
+```{r}
+TeamHW19 <- TeamHW %>%
+  filter(yearID < 1901)
+
+max(TeamHW19$yearID)
+
+TeamHW19 <- TeamHW19 %>%
+  mutate(RD = R - RA, Wpct = W / (W + L))
+
+run_diff <- ggplot(TeamHW19, aes(x = RD, y = Wpct)) +
+  geom_point() +
+  scale_x_continuous("Run Differential") +
+  scale_y_continuous("Winning Percentage")
+run_diff
+
+linfit <- lm(Wpct~RD, data = TeamHW19)
+linfit
+
+run_diff + geom_smooth(method = "lm", se = FALSE)
+
+get_regression_table(linfit)
+
+ggplot(get_regression_points(linfit), aes(x = residual)) +
+  geom_histogram() 
+
+ggplot(get_regression_points(linfit), aes(sample = residual)) + 
+  geom_qq() +
+  geom_qq_line(color = "red")
+
+# Couldn't get this wierd augment function to work, just used moderndive functions for residual plotting
+
+# TeamHW19_aug <- augment(linfit, data = TeamHW19)
+# 
+# base_plot <- ggplot(TeamHW19_aug, aes(x = RD, y = .resid)) +
+#   geom_point(alpha = 0.3) +
+#   geom_hline(yintercept = 0, linetype = 3) +
+#   xlab("Run Differential") + ylab("Residual")
+# 
+# highlight_teams <- TeamHW19_aug %>%
+#   arrange(desc(abs(.resid))) %>%
+#   head(4)
+# 
+# 
+# base_plot +
+#   geom_point(data = highlight_teams) +
+#   geom_text_repel(data = highlight_teams, aes(label = paste(teamID, yearID)))
+# 
+# resid_summary <- my_teams_aug %>%
+#   summarize(N = n(), avg = mean(.resid),
+#             RMSE = sqrt(mean(.resid^2)))
+# resid_summary
+
+
+##Pythagorean Formula
+
+TeamHW19 <- TeamHW19 %>%
+  mutate(Wpct_pyth = R^2 / (R^2 + RA^2))
+
+TeamHW19 <- TeamHW19 %>%
+  mutate(residuals_pyth = Wpct - Wpct_pyth)
+
+TeamHW19 %>%
+  summarize(rmse = sqrt(mean(residuals_pyth^2)))
+
+pyth_plot <- ggplot(TeamHW19, aes(x = Wpct_pyth, y = Wpct)) +
+  geom_point() +
+  scale_x_continuous("Pythagorean Diff") +
+  scale_y_continuous("Winning Percentage")
+pyth_plot
+
+pyth_plot + geom_smooth(method = "lm", se = FALSE)
+```
+
+
+b) By inspecting the residual plot of your fitted model from (a), did the great and poor teams in the 19th century do better or worse than one would expect on the basis of their run differentials?
+
+Looking at the residual plot it shows that the vast majority actually did what they were expected to do. We could see that there are some that feel short but the model is pretty good and teams generally did as expected. 
+
+
+#4 (Pythagorean Relationship for Other Sports)
+
+Bill James' Pythagorean model has been used for predicting winning percentage in other sports. Since the pattern of scoring is very different among sports (compare for example points in basketball and goals in soccer), the model needs to be adapted to the scoring environment. Find the necessary data for a sport of your choice and compute the optimal exponent to the Pythagorean formula. (The website www.opensourcesports.com provides databases for NBA and WNBA basketball and for NHL hockey in a format similar to Lahman's baseball database.)
+
+```{r}
+library(readr)
+
+library(Countr)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

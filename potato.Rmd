@@ -1,0 +1,36 @@
+---
+title: "Untitled"
+author: "Jefferson Ong"
+date: "10/17/2019"
+output: html_document
+---
+
+```{r}
+installed.packages("rpart.plot") 
+library(rpart)
+ncaa_data <-read.csv("NCAA_Football.csv")
+
+
+```
+
+```{r}
+row_d <- nrow(ncaa_data)
+col_d <- ncol(ncaa_data)
+set.seed(1)
+select_rows <- sample(1:row_d,round(0.3*row_d),replace=F)
+select_rows
+test <- ncaa_data[select_rows,]
+train <- ncaa_data[-(select_rows),]
+model_tree <- rpart(Pts_Diff~ Off_Pass + Off_Rush + Def_Rush + Def_Pass, data = train)
+
+plot(model_tree)
+text(model_tree)
+
+pred <- predict(model_tree,newdata = test)
+
+plot(pred)
+plot(ncaa_data$Pts_Diff[select_rows], pred)
+
+
+```
+
