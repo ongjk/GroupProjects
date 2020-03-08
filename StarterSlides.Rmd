@@ -1,0 +1,130 @@
+---
+title: "Multiple and Logistic Regression Presentation---Group#1"
+author: "Fiona, Samantha, Amanda, Jefferson"
+date: 'Last compiled: `r format(Sys.time(), "%b %d, %Y")`'
+output: 
+  ioslides_presentation:
+    logo: "./PICS/UCI.png"
+---
+
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r, message=FALSE}
+red <- read_delim("winequality-red.csv", delim = ';')
+white <- read_delim("winequality-white.csv", delim = ';')
+
+# Add red category to red data
+temp_red <- red %>% 
+  mutate(type = "red")
+
+# Add white category to white data
+temp_white <- white %>% 
+  mutate(type = "white")
+
+# Combine data into super wine data! 
+wine <- bind_rows(temp_red, temp_white)
+
+# Remove spaces and replace with underscores to be tidy
+colnames(wine) <- gsub("\\s", "_", colnames(wine))
+```
+
+## Wine Quality Dataset
+- The dataset we chose was the Wine Quality Dataset 
+- This actually includes two different datasets, one for red wine and one for white wine 
+- Variables of the red and white wine include fixed and volatile acidity, citric acid, residual sugar, chorides, total sulfur dioxide, free sulfur dioxide, density, pH, sulphates, alcohol, and quality
+- The wines included are mostly average quality wines, with very few poor or excellent quality ones
+- We combined the red and white wine dataset into one large compilation of the data
+
+
+## Reading in Dataset
+
+```
+red <- read_delim("winequality-red.csv", delim = ';')
+white <- read_delim("winequality-white.csv", delim = ';')
+
+temp_red <- red %>% 
+  mutate(winecolor = "red")
+  
+temp_white <- white %>% 
+  mutate(winecolor = "white")
+  
+wine <- bind_rows(temp_red, temp_white)
+
+colnames(wine) <- gsub("\\s", "_", colnames(wine))
+```
+
+##Creating Parallel Slopes Model
+
+```
+mod <- lm(quality ~ total_sulfur_dioxide + type, data = wine)
+library(broom)
+augmented_mod <- augment(mod)
+
+plot <- ggplot(augmented_mod, aes(x = total_sulfur_dioxide, y = quality, color = type)) +
+  geom_point() +
+  geom_line(aes(x = total_sulfur_dioxide, y = .fitted)) +
+  theme_bw()
+plot
+```
+
+```{r, echo = FALSE}
+lm(quality ~ total_sulfur_dioxide + type, data = wine)
+```
+
+
+##Parallel Slopes
+
+```{r fig.dim=1, fig.cap= "", echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("parallel_slopes.png")
+grid.raster(img)
+```
+
+##Creating Logistic Model
+```
+modL <- glm(type ~ total_sulfur_dioxide, data = wine, family = binomial)
+```
+
+```{r fig.dim=.5, fig.cap= "", echo=FALSE}
+img <- readPNG("log_results.png")
+grid.raster(img)
+```
+
+##Logistic Graph
+```
+plotL <- ggplot(wine, aes(x = total_sulfur_dioxide, y = type)) + 
+  geom_jitter(width = 0, height = 0.05, alpha = 0.5) +
+  geom_smooth(method = "glm", se = FALSE, method.args = list(family = "binomial"))
+```
+```{r fig.dim=1, fig.cap= "", echo=FALSE}
+img <- readPNG("log_graph.png")
+grid.raster(img)
+```
+
+## Creating Multiple Linear Regression Model
+
+```
+mod2 <- lm(quality ~ alcohol + type, data = wine)
+augmented_mod2 <- augment(mod2)
+str(augmented_mod2)
+plot2 <- ggplot(augmented_mod2, aes(x = alcohol, y = quality, color = type)) + 
+  geom_smooth(se = TRUE, method = loess) + 
+  geom_line(aes(x = alcohol, y = .fitted)) + 
+  theme_light()
+
+plot2
+```
+## Multiple Regression Model
+```{r fig.dim=2, fig.cap= "", echo=FALSE}
+multi <- readPNG("multi.png")
+grid.raster(multi)
+```
+
+## Citation
+P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
+Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
