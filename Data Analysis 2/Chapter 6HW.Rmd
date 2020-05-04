@@ -1,0 +1,186 @@
+---
+title: 'Chapter 6 #9'
+author: "Jefferson Ong and Céline Prunet"
+date: "4/27/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this exercise, we will predict the number of applications received
+using the other variables in the College data set.
+
+
+```{r}
+library(ISLR)
+library(glmnet)
+library(pls)
+str(College)
+```
+
+
+(a) Split the data set into a training set and a test set.
+
+```{r}
+index <- sample(nrow(College), nrow(College) * .8, replace = F)
+train <- College[index ,]
+test <- College[-index ,]
+```
+
+
+
+(b) Fit a linear model using least squares on the training set, and
+report the test error obtained.
+
+```{r}
+ModLM <- lm(Apps ~ . , data = train)
+probabilities <- predict(ModLM, newdata = test)
+RSS <- mean((probabilities - test$Apps)^2)
+
+print(paste("RSS: ",round(RSS)))
+```
+ANS: test error: "RSS:  1312138"
+
+
+(c) Fit a ridge regression model on the training set, with λ chosen
+by cross-validation. Report the test error obtained.
+
+```{r}
+x = model.matrix(Apps~.,College)[,-1]
+y = College$Apps
+
+# Setup the lambda values that we'll test.  This is a very comprehensive list.
+grid = 10^seq(10,-2,length=100)
+# cross validation to find the best lambda
+set.seed(1)
+train=sample(1:nrow(x), nrow(x)/2)
+test=(-train)
+y.test=y[test]
+ridge.mod=glmnet(x[train,],y[train],alpha=0,lambda=grid, thresh=1e-12)
+
+cv.out=cv.glmnet(x[train,],y[train],alpha=0)
+bestlam=cv.out$lambda.min
+# Using the best-lambda chosen from cross-validation, we'll fit the test data in our validation set approach
+ridge.pred=predict(ridge.mod,s=bestlam,newx=x[test,])
+
+# Using the best-lambda chosen from cross validation we will calculate the test MSE for the test data.
+RSS <- mean((ridge.pred-y.test)^2)
+
+print(paste("RSS: ",round(RSS)))
+```
+
+
+ANS: test error: "RSS:  1014"
+
+
+(d) Fit a lasso model on the training set, with λ chosen by crossvalidation. Report the test error obtained, along with the number of non-zero coefficient estimates.
+
+```{r}
+set.seed(1)
+
+lasso.mod=glmnet(x[train,],y[train],alpha=1,lambda=grid, thresh=1e-12)
+
+cv.out=cv.glmnet(x[train,],y[train],alpha=1)
+bestlam=cv.out$lambda.min
+# Using the best-lambda chosen from cross-validation, we'll fit the test data in our validation set approach
+lasso.pred=predict(lasso.mod,s=bestlam,newx=x[test,])
+
+# Using the best-lambda chosen from cross validation we will calculate the test MSE for the test data.
+RSS <- mean((lasso.pred-y.test)^2)
+
+print(paste("RSS: ",round(RSS)))
+```
+
+ANS: test error: "RSS:  1033576" 
+
+```{r}
+out=glmnet(x,y,alpha=1,lambda=grid)
+
+lasso.coef=predict(out,type="coefficients",s=bestlam)[1:18,]
+lasso.coef[lasso.coef!=0]
+```
+ANS : number of non-zero coefficient estimates: 17
+
+
+
+(e) Fit a PCR model on the training set, with M chosen by crossvalidation. Report the test error obtained, along with the value
+of M selected by cross-validation.
+
+
+
+```{r}
+pcr.fit=pcr(Apps~., data=College,subset=train,scale=TRUE,validation="CV")
+
+validationplot(pcr.fit,val.type="MSEP")
+which.min(RMSEP(pcr.fit)$val[1,,]) - 1
+
+```
+
+ANS:  M selected by cross-validation: 17
+
+```{r}
+
+pcr.pred=predict(pcr.fit, x[test,],ncomp=17)
+
+RSS <- mean((pcr.pred-y.test)^2)
+
+print(paste("RSS: ",round(RSS)))
+```
+
+ANS: test error: "RSS:  1108531"
+
+
+(f) Fit a PLS model on the training set, with M chosen by crossvalidation. Report the test error obtained, along with the value
+of M selected by cross-validation.
+
+```{r}
+pls.fit=plsr(Apps~., data=College,subset=train,scale=TRUE, validation="CV")
+
+validationplot(pls.fit,val.type="MSEP")
+which.min(RMSEP(pls.fit)$val[1,,]) - 1 
+
+
+
+```
+
+ANS: M selected by cross-validation: 11
+
+
+```{r}
+pls.pred=predict(pls.fit, x[test,],ncomp=11)
+
+RSS <- mean((pls.pred-y.test)^2)
+
+print(paste("RSS: ",round(RSS)))
+```
+
+ANS: test error: "RSS:  1128934"
+
+
+(g) Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much
+difference among the test errors resulting from these five approaches?
+
+Comparing the RSS of each model we see that the RSS:
+
+LM: "RSS:  1312138"
+Ridge: "RSS:  1029090"
+Lasso: "RSS:  1033576"
+PCR: "RSS:  1108531"
+PLS:  "RSS:  1128934"
+
+
+We can see that the lowest RSS is the ridge regression model with the lasso as a close second. Base on this we will say to either use the ridge model or lasso for the least about of residual sum of squared errors, however the ridge regression uses all 18 while the lasso uses 17 of the variables. If we want to use less then the next best choice is the PLS model that would only use 11. Since the PCR model also uses 17 variables it wouldn't make sense to use it over the Lasso model.
+
+
+
+
+
+
+
+
+
+
+
+

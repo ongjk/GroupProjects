@@ -1,0 +1,307 @@
+---
+title: "Project 1 Multiple Regression ☺"
+author: "Jefferson Ong, Jayne Hollar, Céline Prunet"
+date: '`r format(Sys.time(), "%b %d, %Y at %X")`'
+
+output:
+
+  bookdown::html_document2:
+
+    highlight: textmate
+
+    theme: yeti
+
+
+---
+
+
+```{r , comment= NA, warning= F, message = FALSE}
+library(readxl)
+library(tidyverse)
+house <- read_excel("Housing.xlsx")
+```
+
+# Data Summary: 
+
+Examine the statistics and values for each variable.  Are any missing?  Do any values need clarification or modification?  If so, why and what did you do?
+
+```{r, comment = NA, eval=FALSE}
+str(house)
+summary(house)
+which(is.na(house))
+```
+
+
+* None are missing in the data frame
+
+## Do any values need clarification or modification?
+
+* Yes, status and elem should be a factor rather than just characters. 
+
+```{r}
+house$status <- as.factor(house$status)
+house$elem <- as.factor(house$elem)
+str(house)
+```
+
+
+_____
+
+
+# Exploratory Data Analysis:  
+
+## Scatterplot
+
+```{r, comment= NA}
+plot(house[1:9])
+```
+
+* If we look at the second row of this multi-scatterplot, we can see the relationship of price as y against all the other variables individually. We can see that bath, bedroom, garagesize, and status are discrete variables. We can consider them as factors where a house's bathroom will either have 1, 2, or 3 bathrooms but for now we won't, in an extreme case of a house having more than 3 bathroom. Where as a house can only have three states. 
+
+## Correlation plot
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+
+library("PerformanceAnalytics")
+chart.Correlation(house[, c(1:9)], histogram=TRUE, pch=19)
+```
+
+
+  - id: 0.04662108
+  - price: 1.00000000
+  - size: 0.20143783
+  - lot: 0.24423228
+  - bath: 0.1746578
+  - bedrooms: -0.28619746
+  - yearbuilt: 0.15412476
+  - agestandardized: 0.15412476 
+  - garagesize: 0.3583861
+
+ Here we can see that price as a single predictor against the other variables. We can see that individually each predictor doesn't correlate strongly to price. Examine some of the variables relationships with price to help you determine which variables might be useful in an initial model.  Explain your conclusions from this initial screening.
+
+ We can see that the promising predictor variables are garagesize, lot, bedrooms(negatively). We can look further in size, bath, yearbuilt/agestandardized if we need more predictors. It makes sense that id doesn't predict anythign since its just an index and that yearbuilt and agestandardized are the same since agestandardized is just a transformation of yearbuilt. 
+
+ 
+
+```{r}
+test <- house %>%
+  select(bedrooms, price) %>%
+  arrange(bedrooms)
+plot(test)
+```
+
+* We wanted to see why bedroom is negatively correlated since it's not intuitive that having more bedrooms mean that the house is a lower price. We can see from the scatterplot that houses that have 4 or more bedrooms typically cost less than the 2 or 3 bedroom counterparts.
+
+## Outliers
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+
+OutVals = boxplot(house$size, plot = T, main = "size")$out
+which(house$size %in% OutVals)
+OutVals = boxplot(house$lot, plot = T, main = "lot")$out
+which(house$lot %in% OutVals)
+OutVals = boxplot(house$bath, plot = T, main = "bath")$out
+which(house$bath %in% OutVals)
+OutVals = boxplot(house$bedrooms, plot = T, main = "bedrooms")$out
+which(house$bedrooms %in% OutVals)
+OutVals = boxplot(house$yearbuilt, plot = T, main = "year built")$out
+which(house$yearbuilt %in% OutVals)
+OutVals = boxplot(house$garagesize, plot = T, main = "garage size")$out
+which(house$garagesize %in% OutVals)
+```
+
+* We went ahead and look at size, lot, bath, bedroom, yearbuilt, and garagesize for outliers since id is just an index, price because it's what we're trying to predict, and agestandardized as it will give the same as yearbuilt. Boxplot would not be appropriate in for status and elem since it wouldn't make sense. 
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+house$size[c(4, 20, 76)]
+house$lot[c(74)]
+#house$bath 
+house$bedrooms[c(35)]
+house$yearbuilt[c(35, 52, 54, 64)]
+#house$garagesize
+```
+
+
+
+* We then looked at the individual points to see if the data can explain why these particular points are outliers. We found that houses built before the 1920 has the 6 bedroom home which explains some of the negative correlation between price and bedroom numbers. An intuition would be that older homes, especially those before the 1920s will cost more and have more bedrooms. 
+
+```{r, comment= NA, warning= F, message = FALSE}
+house[c(74, 76),]
+```
+
+* We then looked at the row 74 and 76 since 74 had a particuarly large lot and 76 had a huge size. We found that theres nothing apparent that would explain this deviation and decided to remove them because of this. They aren't representative of the data at hand. We will also remove id as it isn't needed for our analysis
+
+```{r, comment= NA, warning= F, message = FALSE}
+house <- house[-c(74,76), ]
+house <- subset(house, select = -id )
+str(house)
+```
+
+* The variables: size, lot, bedrooms, yearbuilt/agestandardized has outliers
+
+_____
+
+# Initial Modeling:  
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+model1 <- lm(price ~. -agestandardized , house)
+summary(model1)
+```
+Using your conclusions from the exploratory data analysis, build a regression model and report your findings.
+
+ We can see that the model isn't just random and does explain the price in someway, by the p-value on the F-statistic. 
+
+          F-statistic: 5.118 on 13 and 59 DF,  p-value: 5.685e-06.
+          
+The model also explains about 53% of the variability in price, using the Multiple R-squared: 0.53. however this is inflated due to the sheer amount of predictors that we are using, looking at the Adjusted R-squared:  0.4264 means that it should only be about 42%.
+
+We can see that most of the significant predictors depend on the school district and status 3(whether the house is listed). There is also NA values for the agestandardized which makes sense since it's the same as yearbuilt and adds nothing to the model.
+
+______
+
+
+# Model Modification:  
+
+Consider modifying your model based upon your initial results and/or diagnostic plots from the model.  Explain any modifications that you are making.  Consider variance inflation factors for each predictor in your model and comment on that in your model selection process.
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+library(car)
+vif(model1)
+```
+
+* Using the GVIF^(1/(2*Df)) since elem has 5 coefficients and status has df 2, for all the different factors. There isn't much multicollinearity between the predictor variables.
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+model2 <- lm(price ~. -agestandardized -yearbuilt -bath -lot -garagesize, house)
+summary(model2)
+vif(model2)
+```
+
+We then started to remove predictor variables base on the highest p value on their individual t statistic. While also keeping in mind the vif at each iteration on whether one would show multicollinearity, this is not occur. After removing yearbuilt and bath we saw size became significant. When we removed lot bedroom started to show that it might be significant and finally removing garagesize, we end up with a model where all the predictors are significant. 
+
+ 
+The p value on the f-statistic shows us this is a significant model overall with a R^2 of 49%, adjusted of 42%. 
+
+```{r, comment= NA, warning= F, message = FALSE}
+par(mfrow = c(2,2))
+plot(model2)
+```
+
+```{r, comment= NA, warning= F, message = FALSE}
+house[4,]
+```
+
+* Again we see that this is the house with 6 bedrooms that we decided to keep earlier on. We can see from the plot diagnostics that we aren't violating any underlying assumptions for linear regression modelling. 
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+model3 <- lm(price ~. -agestandardized -yearbuilt -bath -lot -garagesize + agestandardized:size, house)
+summary(model3)
+par(mfrow = c(2,2))
+plot(model3)
+```
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+model4 <- lm(log(price) ~. -agestandardized -yearbuilt -bath -lot -garagesize, house)
+summary(model4)
+par(mfrow = c(2,2))
+plot(model4)
+```
+Here we've looked at the interaction term that we thought we be significant earlier from looking at the data. We find out that is it not. 
+
+We applied a transformation on the Y response variable, seeing if it will yield to better plot diagnostics. It doesn't change much for the most part aside from the residual vs fitted plot being more spread out but curving more drastically. 
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+model4 <- lm(price ~ elem + status + I(size /100) + bedrooms, house)
+summary(model4)
+par(mfrow = c(2,2))
+plot(model4)
+```
+
+
+
+* We applied a transformation on size to see changes in the plot diagnostics. We can see that changes in the predictor variables does not have any affects on it's significances. 
+
+_____
+
+
+# Conclusions: 
+
+Present your final model and diagnostic plots in support of that final model.  In that presentation of the final model, comment on the R-squared value and its interpretation, give 95% confidence intervals for each of the β coefficients in your model, and illustrate your model’s use with a 95% confidence interval for the mean response and a 95% prediction interval for individual response for a hypothetical house of your choosing.
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+modelf <- lm(price ~ elem + status + size + bedrooms, house)
+summary(modelf)
+par(mfrow = c(2,2))
+plot(modelf)
+```
+
+
+* After looking at the transformation on the on the response, interaction terms, and some of the predictor variables. We did not find anything compelling that would improve the model from what we already had. 
+
+* The R^2 value is 0.4909 which mean that the model explains about 49% of the variation. Looking at the adjusted R^2 of 0.4193 we're penalized by the amount of variables in the model. 
+
+```{r, comment= NA, warning= F, message = FALSE}
+confint(modelf, level = .95)
+```
+
+* These are the β coefficients in your model, we are 95% confident that the actual mean data point is between the 2.5% and 97.5% values.
+
+* We can be 95% confident that the actual mean price value for elemcrest is between -$56.1K to $77.8K.
+
+* We can be 95% confident that the actual mean price value for elemedge is between -$47.0K to $66.3K.
+
+* We can be 95% confident that the actual mean price value for elemedison is between $29.3K to $147.1K.
+
+* We can be 95% confident that the actual mean price value for elemharris is between -$10.2K  to $108.2K.
+
+* We can be 95% confident that the actual mean price value for elemparker is between -$45.4K to $19.1K.
+
+* We can be 95% confident that the actual mean price value for statuspen is between  -$72.0K to -$19.4K.
+
+* We can be 95% confident that the actual mean price value for statussld is between $19.4K to $72.0K.
+
+* We can be 95% confident that the actual mean price value for size is between $15.8K to $141.1K.
+
+* We can be 95% confident that the actual mean price value for bedrooms is between -$35.3K to -$4.2K.
+
+
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+newhouse <- data.frame(size = 2, bedrooms  = 4, status = "pen", elem = "crest")
+predict(modelf, newdata = newhouse, interval = 'confidence')
+```
+
+* $271.0K is the point estimate for this particular house. 
+* Based on the model centered around the mean prediction values, we can be 95% confident the true mean home price is between $220.0K to $322.0K
+
+
+```{r, comment= NA, warning= F, message = FALSE}
+newhouse <- data.frame(size = 2, bedrooms  = 4, status = "pen", elem = "crest")
+predict(modelf, newdata = newhouse, interval = 'predict')
+```
+
+* $271.0K is the point estimate for future houses
+* Based on the model centered around the point estimate, we expect a future home built to have a price of $168.9K to $373.0K 95% of the time and 5% of the time to have a price outside this range.
+
+
+
+
+
+
+

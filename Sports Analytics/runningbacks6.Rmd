@@ -1,0 +1,329 @@
+---
+title: "Creating Ratings for Runningbacks"
+author: "Josh Arford"
+date: "10/3/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, include = FALSE, message = FALSE}
+library(tidyverse)
+library('rvest')
+
+url <- 'https://www.espn.com/nfl/stats/player/_/stat/rushing/season/2018/seasontype/2/table/rushing/sort/rushingYards/dir/desc'
+webpage <- read_html(url)
+sb_table <- html_nodes(webpage, 'table')
+hn <- html_table(sb_table)
+r <- as.data.frame(hn)
+    
+# fb$YDS = as.numeric(gsub("[\\,,]", "", fb$YDS))
+# fb$YDS <- as.numeric(fb$YDS)
+
+
+
+```
+
+
+```{r, include = FALSE, message = FALSE}
+
+
+url1 <- 'https://www.espn.com/nfl/stats/player/_/stat/rushing/season/2017/seasontype/2'
+webpage1 <- read_html(url1)
+sb_table1 <- html_nodes(webpage1, 'table')
+hn1 <- html_table(sb_table1)
+r1 <- as.data.frame(hn1)
+    
+# fb$YDS = as.numeric(gsub("[\\,,]", "", fb$YDS))
+# fb$YDS <- as.numeric(fb$YDS)
+
+
+
+```
+
+
+
+
+
+```{r, include = FALSE, message = FALSE}
+
+
+url2 <- 'https://www.espn.com/nfl/stats/player/_/stat/rushing/season/2016/seasontype/2'
+webpage2 <- read_html(url2)
+sb_table2 <- html_nodes(webpage2, 'table')
+hn2 <- html_table(sb_table2)
+r2 <- as.data.frame(hn2)
+    
+# fb$YDS = as.numeric(gsub("[\\,,]", "", fb$YDS))
+# fb$YDS <- as.numeric(fb$YDS)
+
+
+
+```
+
+
+
+```{r, include=FALSE}
+rb <- r %>%
+  filter(POS == "RB")
+
+rb$YDS = as.numeric(gsub("[\\,,]", "", rb$YDS))
+rb$YDS <- as.numeric(rb$YDS)
+
+rb1 <- r1 %>%
+  filter(POS == "RB")
+
+rb1$YDS = as.numeric(gsub("[\\,,]", "", rb1$YDS))
+rb1$YDS <- as.numeric(rb1$YDS)
+
+rb2 <- r2 %>%
+  filter(POS == "RB")
+
+rb2$YDS = as.numeric(gsub("[\\,,]", "", rb2$YDS))
+rb2$YDS <- as.numeric(rb2$YDS)
+
+
+
+```
+
+GP = Games played
+
+ATT = Attempted to run the ball
+
+YDS = The distance they ran
+
+AVG = Yards per attempt (YDS/ATT)
+
+LNG = Longest run (useless)
+
+BIG = Run >20 yards in a single play
+
+TD = touchdown
+
+YDS/G = Yards per game
+
+FUM = Fumbles
+
+LST = fumbles lost
+
+FD = First down
+
+
+
+
+# Creating the Formulas for 2018
+
+```{r}
+rb <- rb %>%
+  mutate(
+    RTG1 = (((YDS/100) * .4) + (AVG * .2) + (TD * .4))
+  )
+
+rb <- rb %>%
+  mutate(
+    RTG2 = (((ATT/10)) + (TD) - (FUM * 2))
+  )
+
+rb <- rb %>%
+  mutate(
+    RTG3 = (((YDS/100) * .2) + (FD* .4) + (BIG * .4))
+  )
+
+rb <- rb %>%
+  mutate(
+    RTG4 = ((RTG1 * 3) + (RTG2) + (RTG3))
+  )
+```
+
+
+```{r, include = FALSE}
+rb1 <- rb1 %>%
+  mutate(
+    RTG1 = (((YDS/100) * .4) + (AVG * .2) + (TD * .4))
+  )
+
+rb1 <- rb1 %>%
+  mutate(
+    RTG2 = (((ATT/10)) + (TD) - (FUM * 2))
+  )
+
+rb1 <- rb1 %>%
+  mutate(
+    RTG3 = (((YDS/100) * .2) + (FD* .4) + (BIG * .4))
+  )
+
+rb1 <- rb1 %>%
+  mutate(
+    RTG4 = ((RTG1 * 3) + (RTG2) + (RTG3))
+  )
+```
+
+
+
+
+
+```{r, include = FALSE}
+rb2 <- rb2 %>%
+  mutate(
+    RTG1 = (((YDS/100) * .4) + (AVG * .2) + (TD * .4))
+  )
+
+rb2 <- rb2 %>%
+  mutate(
+    RTG2 = (((ATT/10)) + (TD) - (FUM * 2))
+  )
+
+rb2 <- rb2 %>%
+  mutate(
+    RTG3 = (((YDS/100) * .2) + (FD* .4) + (BIG * .4))
+  )
+
+rb2 <- rb2 %>%
+  mutate(
+    RTG4 = ((RTG1 * 3) + (RTG2) + (RTG3))
+  )
+```
+
+# Ranking by 3 metrics for 2018
+
+```{r}
+Rating1 <- rb %>% 
+  select(Name, RTG1)
+rtg1 <- Rating1[order(-Rating1$RTG1), ]
+rtg1 <- rtg1[1:15, ]
+rtg1
+
+Rating2 <- rb %>% 
+  select(Name, RTG2)
+rtg2 <- Rating2[order(-Rating2$RTG2), ]
+rtg2 <- rtg2[1:15, ]
+rtg2
+
+Rating3 <- rb %>% 
+  select(Name, RTG3)
+rtg3 <- Rating3[order(-Rating3$RTG3), ]
+rtg3 <- rtg3[1:15, ]
+rtg3
+
+Rating4 <- rb %>% 
+  select(Name, RTG4)
+rtg4 <- Rating4[order(-Rating4$RTG4), ]
+rtg4 <- rtg4[1:15, ]
+rtg4
+
+
+```
+
+# Ranking by 3 metrics for 2017
+
+
+```{r}
+Rat1 <- rb1 %>% 
+  select(Name, RTG1)
+rt1 <- Rat1[order(-Rat1$RTG1), ]
+rt1 <- rt1[1:15, ]
+rt1
+
+Rat2 <- rb1 %>% 
+  select(Name, RTG2)
+rt2 <- Rat2[order(-Rat2$RTG2), ]
+rt2 <- rt2[1:15, ]
+rt2
+
+Rat3 <- rb1 %>% 
+  select(Name, RTG3)
+rt3 <- Rat3[order(-Rat3$RTG3), ]
+rt3 <- rt3[1:15, ]
+rt3
+
+Rat4 <- rb1 %>% 
+  select(Name, RTG4)
+rt4 <- Rat4[order(-Rat4$RTG4), ]
+rt4 <- rt4[1:15, ]
+rt4
+```
+
+# Ranking by 3 metrics for 2016
+
+```{r}
+Ra1 <- rb2 %>% 
+  select(Name, RTG1)
+rg1 <- Ra1[order(-Ra1$RTG1), ]
+rg1 <- rg1[1:15, ]
+rg1
+
+Ra2 <- rb2 %>% 
+  select(Name, RTG2)
+rg2 <- Ra2[order(-Ra2$RTG2), ]
+rg2 <- rg2[1:15, ]
+rg2
+
+Ra3 <- rb2 %>% 
+  select(Name, RTG3)
+rg3 <- Ra3[order(-Ra3$RTG3), ]
+rg3 <- rg3[1:15, ]
+rg3
+
+Ra4 <- rb2 %>% 
+  select(Name, RTG4)
+rg4 <- Ra4[order(-Ra4$RTG4), ]
+rg4 <- rg4[1:15, ]
+rg4
+```
+
+# Histograms for Combined Ratings
+
+```{r, echo = FALSE}
+ggplot(rtg4, aes(x = Name, y = RTG4)) +
+geom_bar(stat = "identity", fill = "blue") + 
+  theme(axis.text.x =
+                   element_text(size  = 8,
+                                angle = 45,
+                                hjust = 1,
+                                vjust = 1)) +
+labs(title = "Combined Rating for NFL Running Backs in 2018")
+
+ggplot(rt4, aes(x = Name, y = RTG4)) +
+geom_bar(stat = "identity", fill = "blue") + 
+  theme(axis.text.x =
+                   element_text(size  = 8,
+                                angle = 45,
+                                hjust = 1,
+                                vjust = 1)) +
+labs(title = "Combined Rating for NFL Running Backs in 2017")
+ggplot(rg4, aes(x = Name, y = RTG4)) +
+geom_bar(stat = "identity", fill = "blue") + 
+  theme(axis.text.x =
+                   element_text(size  = 8,
+                                angle = 45,
+                                hjust = 1,
+                                vjust = 1)) +
+labs(title = "Combined Rating for NFL Running Backs in 2016")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
