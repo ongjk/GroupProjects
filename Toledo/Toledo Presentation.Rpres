@@ -1,0 +1,192 @@
+
+Toledo Test Analysis
+========================================================
+author: Josh, Jefferson, Jose
+date: December 9th, 2019
+transition:zoom
+width: 1920
+height: 1080
+
+
+Introduction
+========================================================
+
+- The Toledo Test is a chemistry placement exam that is designed to evaulate how well a student is prepared for college level introductory chemistry.
+
+- It includes 20 math/chemistry questions with content up to College Algebra.
+
+- We were given 4 numerical variables which include score, gpa, math score, and chemistry score. Additional
+information was also provided for some students.
+
+
+
+Our Goals
+========================================================
+
+- We wanted to analyze the data and see if we came up with any significant correlations. 
+
+- We also wanted to see what will happen if we change the cut-off date for the exam and find out what other information would be useful.
+
+- We wanted to learn new techniques when analyzing data in R.
+
+
+
+Visualizing the Distribution
+========================================================
+
+
+```{r, echo=FALSE, fig.width=19, fig.height=10.8}
+library(dplyr)
+library(readxl)
+toledo <- read_xlsx("tld.xlsx")
+
+hist(toledo$Score, main = "Distribution of All Exam Scores", breaks = 10, border = "yellow", col = "blue", lwd = 2,xlab = "Score", labels = TRUE, ylim = c(0, 10)) 
+```
+
+
+
+
+
+
+Correlation Coefficient 
+========================================================
+
+
+<large> Our correlation coefficient is a number between -1 and 1. A correlation of -1 would be a perfect negative correlation and 1 would be a perfect positive correlation. The closer the coefficent is to 0, the less correlated the two variables are. We used the Pearson method of correlation test. The formula is below. </large>
+
+$r = \frac{\sum{(x-m_x)(y-m_y)}}{\sqrt{\sum{(x-m_x)^2}\sum{(y-m_y)^2}}}$
+
+$m_x$ and $m_y$ are the means of x and y variables
+
+
+
+Correlation Between Test Score and GPA
+========================================================
+title: false
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=19, fig.height=10.8}
+library(ggplot2)
+ggplot(toledo, aes(x = Score, y = gpa)) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") + 
+  ylab("GPA") +  
+  xlab("Score") +
+  ggtitle(expression("Score vs GPA"), subtitle = "Toledo Exam") + 
+  theme(    plot.background = element_rect(fill = 'black', colour = 'black'),
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+```
+
+
+Correlation Coefficient = .27
+
+
+
+
+Correlation Between Test Score and Math Grade?
+========================================================
+
+```{r, message=FALSE, warning=FALSE, echo = FALSE, fig.width=10, fig.height=7}
+matgrade <- c(2.7, 2, 1, 3, 3.3, 3.3, 1.3, 2.3, 2.3, 2.7, 2.7, 3.3, 2.7, 3.3, 2.7, 2, 2, 2.7, 2.7, 2.3, 2.3, 2.3, 3.7, 2.7, 2.7, 0, 3.7, 1, .3, 2)
+chemgrade <- c(3.3, 3.3, 2.3, 1, 2, 3.7, 2.3, 2.3, 1.7, 1.7, 3.3, 3.7, 2.3, .7, 3.3, 4, 1.3, .7, 3.7, 3, 4, 2.7, 2, 3.3, 3.7, .3, 3, 1.7, 1, 3)
+score <- c(18, 11, 13, 18, 15, 18, 13, 11, 12, 11, 10, 13, 11, 13, 16, 17, 16, 11, 16, 14, 15, 12, 14, 15, 14, 12, 10, 12, 11, 13)
+
+matchem <- data.frame(matgrade, chemgrade, score)
+
+ggplot(matchem, aes(x = score, y = matgrade)) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") + 
+  ylab("Math Grade") +  
+  xlab("Score") +
+  ggtitle(expression("Score vs Math Grade"), subtitle = "Toledo Exam") + 
+  theme(    plot.background = element_rect(fill = 'black', colour = 'black'),
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+```
+***
+
+Correlation Coefficient = .23
+
+
+
+Correlation between Test Score and Chemistry Grade
+========================================================
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE, fig.width=10, fig.height=7}
+ggplot(matchem, aes(x = score, y = chemgrade)) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") + 
+  ylab("Chemistry Grade") +  
+  xlab("Score") +
+  ggtitle(expression("Score vs Chemistry Grade"), subtitle = "Toledo Exam") + 
+  theme(    plot.background = element_rect(fill = 'black', colour = 'black'),
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+```
+***
+
+Correlation Coefficient = .30
+
+What if we took out the outliers? How would this affect correlation?
+========================================================
+
+```{r, warning=FALSE, echo=FALSE, fig.width=10, fig.height=7}
+gpa1 <- toledo %>%
+  filter(gpa > 1)
+
+ggplot(gpa1, aes(x = Score, y = gpa)) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") + 
+  ylab("GPA") +  
+  xlab("Score") +
+  ggtitle(expression("Score vs GPA"), subtitle = "Toledo Exam") + 
+  theme(    plot.background = element_rect(fill = 'black', colour = 'black'),
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +
+  geom_smooth(method = "lm", se = FALSE)
+
+
+```
+***
+
+Correlation Coefficient = .46
+
+
+What-if Analysis
+========================================================
+
+The cutoff for passing is 16.
+Filtering out the passing grades, we can find out what our passing rate is.
+
+```{r, warning=FALSE}
+pass <- filter(toledo, Score > 15)
+
+
+passpct <- nrow(pass)/nrow(toledo)
+passpct
+```

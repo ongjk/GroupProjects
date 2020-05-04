@@ -1,0 +1,276 @@
+---
+title: "CRT DATA ANALYSIS"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = NA, message = FALSE, prompt = FALSE, fig.pos = 'H')
+library(knitr)
+library(kableExtra)
+CRT <- read.csv("CRT.csv")
+```
+
+## STEP ONE: Preparing the DATA Files
+- For the CRT data there needs to be 2 columns. Delete all Columns but CRT SCORE and FINAL_GRADE
+- Save the CRT data as CRT.csv and place it in the same directory as this RMD. (Comma Delimited) 
+
+
+```{r}
+# Gets rid of empty columns and rows
+CRT <- subset(CRT, CRT.SCORE != "NA")[,1:2]
+
+# Changes the Letter Grades to Numbers
+CRT$FINAL_GRADE <- factor(CRT$FINAL_GRADE)
+levels(CRT$FINAL_GRADE)[1] <- 4.0
+levels(CRT$FINAL_GRADE)[2] <- 3.7
+levels(CRT$FINAL_GRADE)[3] <- 3.0
+levels(CRT$FINAL_GRADE)[4] <- 2.7
+levels(CRT$FINAL_GRADE)[5] <- 3.3
+levels(CRT$FINAL_GRADE)[6] <- 2.0
+levels(CRT$FINAL_GRADE)[7] <- 1.7
+levels(CRT$FINAL_GRADE)[8] <- 2.3
+levels(CRT$FINAL_GRADE)[9] <- 1.0
+levels(CRT$FINAL_GRADE)[10] <- 0.7
+levels(CRT$FINAL_GRADE)[11] <- 1.3
+levels(CRT$FINAL_GRADE)[12] <- 0.0
+
+# Changes factors to numeric doubles
+CRT$FINAL_GRADE <- as.numeric(levels(CRT$FINAL_GRADE)[CRT$FINAL_GRADE])
+
+# Subsets the CRT data to the cutoff score of 11. CUTOFF Score can be adjusted here
+CRT11 <- subset(CRT, CRT.SCORE >= 11)
+
+# Subsets the CRT into passing and failing subsets
+CRTNC <- subset(CRT11, FINAL_GRADE < 1.7)
+CRTC <- subset(CRT11, FINAL_GRADE >= 1.7)
+
+# Identifies proportions of fails observed
+propCRTF <- round(length(CRTNC$FINAL_GRADE)/length(CRT$FINAL_GRADE),5)
+
+# Plot of the grades based on scores
+mod1 <- lm(CRT11$FINAL_GRADE~CRT11$CRT.SCORE)
+plot(CRT11$CRT.SCORE,CRT11$FINAL_GRADE, col = "blue", pch = 20, xlab = "Score", ylab = "Grade")
+abline(mod1, col = "red")
+```
+
+
+## Hypothesis
+
+The null hypothesis ($H_0$) is that the failure rate of the CRT is 10%. The alternate hypothesis ($H_A$) is that the failure rate is greater than 10%. We get the following:
+
+$$ H_0 = .10$$
+$$ H_A > .10$$
+
+## Test Statistic
+
+The test statistic is the observed value that is being tested. In this case the test statistic is the `r round(propCRTF, 3)*100` % of student failures. 
+
+
+```{r}
+# Finds Standaard Deviation
+CRT11sd <- sqrt((0.1*0.9)/length(CRT11$CRT.SCORE))
+
+z11 <- (propCRTF - 0.1)/CRT11sd
+
+# Finds p-value
+p <- pnorm(z11, lower.tail = FALSE)
+p
+```
+
+## Criteria
+
+```{r}
+# select alpha value here
+alpha <- 0.1
+
+
+# determines which statement to used based on p-value and alpha
+if (p < alpha)
+{
+  A <- "Since the p-value is less than the alpha value so we reject the null hypothesis."
+}else
+{
+  A <- "Since the p-value is not less than the alpha value so we fail to reject the null hypothesis"
+}
+
+```
+
+Since the p-value is `r p` and the alpha value is `r alpha`. `r A`.
+
+
+# Conclusion
+
+```{r}
+if (p < alpha)
+{
+  C<- "We find significant evidence to suggest that the failure rate is greater than 10%."
+}else
+{
+  C<- "We fail to find evidence to suggest that the failure rate is greater than 10%."
+}
+```
+
+`r C`
+
+# Threshold and Conclusion of the Calculus Readiness Test
+
+```{r}
+#subsets all of the scores between 1 and 20
+
+CRT1 <- subset(CRT, CRT.SCORE >= 1)
+CRT2 <- subset(CRT, CRT.SCORE >= 2)
+CRT3 <- subset(CRT, CRT.SCORE >= 3)
+CRT4 <- subset(CRT, CRT.SCORE >= 4)
+CRT5 <- subset(CRT, CRT.SCORE >= 5)
+CRT6 <- subset(CRT, CRT.SCORE >= 6)
+CRT7 <- subset(CRT, CRT.SCORE >= 7)
+CRT8 <- subset(CRT, CRT.SCORE >= 8)
+CRT9 <- subset(CRT, CRT.SCORE >= 9)
+CRT10 <- subset(CRT, CRT.SCORE >= 10)
+CRT11 <- subset(CRT, CRT.SCORE >= 11)
+CRT12 <- subset(CRT, CRT.SCORE >= 12)
+CRT13 <- subset(CRT, CRT.SCORE >= 13)
+CRT14 <- subset(CRT, CRT.SCORE >= 14)
+CRT15 <- subset(CRT, CRT.SCORE >= 15)
+CRT16 <- subset(CRT, CRT.SCORE >= 16)
+CRT17 <- subset(CRT, CRT.SCORE >= 17)
+CRT18 <- subset(CRT, CRT.SCORE >= 18)
+CRT19 <- subset(CRT, CRT.SCORE >= 19)
+CRT20 <- subset(CRT, CRT.SCORE >= 20)
+
+```
+
+```{r}
+# Number that failed
+CRTF1NC <- subset(CRT1, FINAL_GRADE < 1.7)
+CRTF2NC <- subset(CRT2, FINAL_GRADE < 1.7)
+CRTF3NC <- subset(CRT3, FINAL_GRADE < 1.7)
+CRTF4NC <- subset(CRT4, FINAL_GRADE < 1.7)
+CRTF5NC <- subset(CRT5, FINAL_GRADE < 1.7)
+CRTF6NC <- subset(CRT6, FINAL_GRADE < 1.7)
+CRTF7NC <- subset(CRT7, FINAL_GRADE < 1.7)
+CRTF8NC <- subset(CRT8, FINAL_GRADE < 1.7)
+CRTF9NC <- subset(CRT9, FINAL_GRADE < 1.7)
+CRTF10NC <- subset(CRT10, FINAL_GRADE < 1.7)
+CRTF11NC <- subset(CRT11, FINAL_GRADE < 1.7)
+CRTF12NC <- subset(CRT12, FINAL_GRADE < 1.7)
+CRTF13NC <- subset(CRT13, FINAL_GRADE < 1.7)
+CRTF14NC <- subset(CRT14, FINAL_GRADE < 1.7)
+CRTF15NC <- subset(CRT15, FINAL_GRADE < 1.7)
+CRTF16NC <- subset(CRT16, FINAL_GRADE < 1.7)
+CRTF17NC <- subset(CRT17, FINAL_GRADE < 1.7)
+CRTF18NC <- subset(CRT18, FINAL_GRADE < 1.7)
+CRTF19NC <- subset(CRT19, FINAL_GRADE < 1.7)
+CRTF20NC <- subset(CRT20, FINAL_GRADE < 1.7)
+
+```
+
+```{r}
+
+PropCRT1NC <- round((length(CRTF1NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT2NC <- round((length(CRTF2NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT3NC <- round((length(CRTF3NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT4NC <- round((length(CRTF4NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT5NC <- round((length(CRTF5NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT6NC <- round((length(CRTF6NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT7NC <- round((length(CRTF7NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT8NC <- round((length(CRTF8NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT9NC <- round((length(CRTF9NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT10NC <- round((length(CRTF10NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT11NC <- round((length(CRTF11NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT12NC <- round((length(CRTF12NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT13NC <- round((length(CRTF13NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT14NC <- round((length(CRTF14NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT15NC <- round((length(CRTF15NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT16NC <- round((length(CRTF16NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT17NC <- round((length(CRTF17NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT18NC <- round((length(CRTF18NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT19NC <- round((length(CRTF19NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),5)
+PropCRT20NC <- round((length(CRTF20NC$FINAL_GRADE)/length(CRT$FINAL_GRADE)),10)
+
+```
+
+```{r}
+
+SD1 <- sqrt(0.1*0.9/length(CRT1$FINAL_GRADE))
+SD2 <- sqrt(0.1*0.9/length(CRT2$FINAL_GRADE))
+SD3 <- sqrt(0.1*0.9/length(CRT3$FINAL_GRADE))
+SD4 <- sqrt(0.1*0.9/length(CRT4$FINAL_GRADE))
+SD5 <- sqrt(0.1*0.9/length(CRT5$FINAL_GRADE))
+SD6 <- sqrt(0.1*0.9/length(CRT6$FINAL_GRADE))
+SD7 <- sqrt(0.1*0.9/length(CRT7$FINAL_GRADE))
+SD8 <- sqrt(0.1*0.9/length(CRT8$FINAL_GRADE))
+SD9 <- sqrt(0.1*0.9/length(CRT9$FINAL_GRADE))
+SD10 <- sqrt(0.1*0.9/length(CRT10$FINAL_GRADE))
+SD11 <- sqrt(0.1*0.9/length(CRT11$FINAL_GRADE))
+SD12 <- sqrt(0.1*0.9/length(CRT12$FINAL_GRADE))
+SD13 <- sqrt(0.1*0.9/length(CRT13$FINAL_GRADE))
+SD14 <- sqrt(0.1*0.9/length(CRT14$FINAL_GRADE))
+SD15 <- sqrt(0.1*0.9/length(CRT15$FINAL_GRADE))
+SD16 <- sqrt(0.1*0.9/length(CRT16$FINAL_GRADE))
+SD17 <- sqrt(0.1*0.9/length(CRT17$FINAL_GRADE))
+SD18 <- sqrt(0.1*0.9/length(CRT18$FINAL_GRADE))
+SD19 <- sqrt(0.1*0.9/length(CRT19$FINAL_GRADE))
+SD20 <- sqrt(0.1*0.9/length(CRT20$FINAL_GRADE))
+
+z1 <- (PropCRT1NC - 0.1)/SD1
+z2 <- (PropCRT2NC - 0.1)/SD2
+z3 <- (PropCRT3NC - 0.1)/SD3
+z4 <- (PropCRT4NC - 0.1)/SD4
+z5 <- (PropCRT5NC - 0.1)/SD5
+z6 <- (PropCRT6NC - 0.1)/SD6
+z7 <- (PropCRT7NC - 0.1)/SD7
+z8 <- (PropCRT8NC - 0.1)/SD8
+z9 <- (PropCRT9NC - 0.1)/SD9
+z10 <- (PropCRT10NC - 0.1)/SD10
+z11 <- (PropCRT11NC - 0.1)/SD11
+z12 <- (PropCRT12NC - 0.1)/SD12
+z13 <- (PropCRT13NC - 0.1)/SD13
+z14 <- (PropCRT14NC - 0.1)/SD14
+z15 <- (PropCRT15NC - 0.1)/SD15
+z16 <- (PropCRT16NC - 0.1)/SD16
+z17 <- (PropCRT17NC - 0.1)/SD17
+z18 <- (PropCRT18NC - 0.1)/SD18
+z19 <- (PropCRT19NC - 0.1)/SD19
+z20 <- (PropCRT20NC - 0.1)/SD20
+
+P1 <- pnorm(z1, lower.tail = FALSE)
+P2 <- pnorm(z2, lower.tail = FALSE)
+P3 <- pnorm(z3, lower.tail = FALSE)
+P4 <- pnorm(z4, lower.tail = FALSE)
+P5 <- pnorm(z5, lower.tail = FALSE)
+P6 <- pnorm(z6, lower.tail = FALSE)
+P7 <- pnorm(z7, lower.tail = FALSE)
+P8 <- pnorm(z8, lower.tail = FALSE)
+P9 <- pnorm(z9, lower.tail = FALSE)
+P10 <- pnorm(z10, lower.tail = FALSE)
+P11 <- pnorm(z11, lower.tail = FALSE)
+P12 <- pnorm(z12, lower.tail = FALSE)
+P13 <- pnorm(z13, lower.tail = FALSE)
+P14 <- pnorm(z14, lower.tail = FALSE)
+P15 <- pnorm(z15, lower.tail = FALSE)
+P16 <- pnorm(z16, lower.tail = FALSE)
+P17 <- pnorm(z17, lower.tail = FALSE)
+P18 <- pnorm(z18, lower.tail = FALSE)
+P19 <- pnorm(z19, lower.tail = FALSE)
+P20 <- pnorm(z20, lower.tail = FALSE)
+Score3 <- c(1:10)
+Score4 <- c(11:20)
+Prop.Fail3 <- c(PropCRT1NC,PropCRT2NC,PropCRT3NC,PropCRT4NC,PropCRT5NC,PropCRT6NC,PropCRT7NC,PropCRT8NC,PropCRT9NC, PropCRT10NC)
+Prop.Fail4 <- c(PropCRT11NC,PropCRT12NC,PropCRT13NC,PropCRT14NC,PropCRT15NC,PropCRT16NC,PropCRT17NC,PropCRT18NC,PropCRT19NC, PropCRT20NC)
+P.value3 <- c(P1, P2, P3, P4,P5,P6, P7,P8,P9,P10)
+P.value4 <- c(P11, P12, P13, P14,P15,P16, P17,P18,P19,P20)
+l <- cbind(Score3, Prop.Fail3,P.value3,Score4, Prop.Fail4,P.value4)
+colnames(l) <- c("Score","Prop Fail", "p-value","Score","Prop Fail", "p-value")
+
+kable(l) %>%
+kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+
+
+
+```
+
+
+
+
+

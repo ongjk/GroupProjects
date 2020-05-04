@@ -1,0 +1,464 @@
+---
+title: "Project Two" 
+author: "Josh Arford"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    toc: true
+    toc_float: false
+    toc_depth: 4
+    number_sections: true
+    code_folding: hide
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(moderndive)
+library(ggtern)
+library(blscrapeR)
+library(resampledata)
+library(XML)
+library(readr)
+library(lubridate)
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(knitr)
+library(stats)
+library(skimr)
+library(readxl)
+
+theme_set(theme_minimal() +
+  theme(axis.line.y.left = element_line(),
+        axis.line.x.bottom = element_line()))
+```
+
+## Question 1: Graph 1
+```{r, echo = FALSE}
+url <- "http://www.lottofactor.com/script/jackpot_history/draw_date/101"
+jackpot_vals <- readHTMLTable(url)[[18]] %>% 
+  mutate_all(funs(str_replace(., pattern = "Â", replacement = ""))) %>% 
+  mutate_all(funs(str_trim(., "left")))
+
+names(jackpot_vals)[1] <- "drawdate"
+names(jackpot_vals)[2] <- "jackpot_value"
+names(jackpot_vals)[3] <- "change"
+
+jackpot_vals$change <- NULL
+jackpot2 <- jackpot_vals %>% separate(`drawdate`, into = c("drawday", "drawdate"), sep = " ") 
+jackpot2$jackpot_value <- str_replace(jackpot2$jackpot_value, "Million", "")
+jackpot2$jackpot_value <- substring(jackpot2$jackpot_value, 2)
+jackpot2 = jackpot2[-1,]
+jackpot3 <- transform(jackpot2, jackpot_value = as.numeric(jackpot_value))
+
+winners <- read_csv(url("https://data.ny.gov/api/views/d6yy-54nr/rows.csv?accessType=DOWNLOAD"))
+names(winners)[1] <- "drawdate"
+names(winners)[2] <- "winningnumbers"
+names(winners)[3] <- "multiplier"
+
+drawdate <- c("01/02/2010", "01/06/2010", "01/09/2010", "01/13/2010", "01/16/2010", "01/20/2010", "01/23/2010", "01/27/2010", "01/30/2010")
+winningnumbers <- c("3 7 23 27 42 37 3", "20 27 29 56 58 31 2", "20 41 44 50 54 22 2", "8 11 15 32 50 27 3", "7 8 23 41 55 23 5", "15 32 43 44 46 19 4", "15 16 20 42 53 17 2", "6 15 20 26 31 9 5", "6 26 35 47 48 21 3")
+multiplier <- c(NA, NA,NA,NA,NA,NA,NA,NA,NA)
+winners2 <- data.frame(drawdate, winningnumbers, multiplier)
+winners3 <- winners2[nrow(winners2):1, ]
+
+winners_final <- rbind(winners, winners3)
+winners_final <- winners_final %>%
+  separate(`winningnumbers`, into = c("white1", "white2", "white3", "white4", "white5", "powerball"), sep = " ")
+
+winners_final$white1 <- as.numeric(winners_final$white1)
+winners_final$white2 <- as.numeric(winners_final$white2)
+winners_final$white3 <- as.numeric(winners_final$white3)
+winners_final$white4 <- as.numeric(winners_final$white4)
+winners_final$white5 <- as.numeric(winners_final$white5)
+winners_final$white5 <- as.numeric(winners_final$white5)
+winners_final$powerball <- as.numeric(winners_final$powerball)
+head(duplicated(winners_final$drawdate))
+wf <- winners_final[-c(224), ]
+head(duplicated(wf))
+rownames(wf) <- 1:nrow(wf)
+wf <- wf[-c(818, 819), ]
+rownames(wf) <- 1:nrow(wf)
+wf <- wf[-c(904), ]
+rownames(wf) <- 1:nrow(wf)
+
+inflation_adj <- inflation_adjust(2019)
+a10 <- 1.14
+a11 <- 1.11
+a12 <- 1.09
+a13 <- 1.08
+a14 <- 1.07
+a15 <- 1.06
+a16 <- 1.05
+a17 <- 1.03
+a18 <- 1.01
+a19 <- 1.00
+
+jackpot21 <- subset(jackpot3, select = jackpot_value)
+
+v10 <- jackpot21 %>% slice(873:975)
+v11 <- jackpot21 %>% slice(770:872)
+v12 <- jackpot21 %>% slice(666:769)
+v13 <- jackpot21 %>% slice(562:665)
+v14 <- jackpot21 %>% slice(457:561)
+v15 <- jackpot21 %>% slice(353:456)
+v16 <- jackpot21 %>% slice(248:352)
+v17 <- jackpot21 %>% slice(144:247)
+v18 <- jackpot21 %>% slice(33:143)
+v19 <- jackpot21 %>% slice(1:32)
+
+
+adj2010 <- v10*a10
+adj2011 <- v11*a11
+adj2012 <- v12*a12
+adj2013 <- v13*a13
+adj2014 <- v14*a14
+adj2015 <- v15*a15
+adj2016 <- v16*a16
+adj2017 <- v17*a17
+adj2018 <- v18*a18
+adj2019 <- v19*a19
+
+jackpot_value_adj <- rbind(adj2019, adj2018, adj2017, adj2016, adj2015, adj2014, adj2013, adj2012, adj2011, adj2010)
+jackpot4 <- jackpot3[-c(976:1766), ] 
+v <- c(0)
+jva <- rbind(jackpot_value_adj, v)
+jackpot4 <- jackpot4[-c(977), ]
+jackpot4 <- jackpot4[-c(978), ]
+jackpot4 <- jackpot4[-c(976), ]
+
+jackpot_final <- cbind(jackpot4, jva)
+names(jackpot_final)[4] <- "jackpot_value_adj"
+head(duplicated(jackpot_final$drawdate))
+jf <- jackpot_final[-c(46, 69, 75, 78, 87, 110, 142), ]
+head(duplicated(jf$drawdate))
+rownames(jf) <- 1:nrow(jf)
+jf <- jf[-c(195), ]
+rownames(jf) <- 1:nrow(jf)
+jf <- jf[-c(502), ]
+rownames(jf) <- 1:nrow(jf)
+names(jf)[2] <- "drawdate1"
+
+wf <- wf[-c(968), ]
+wf <- wf[-c(969), ]
+wf <- wf[-c(967), ]
+wf <- wf[-c(1), ]
+powerball <- cbind(jf, wf)
+powerball <- powerball[, -2]
+powerball <- powerball[, -12]
+powerball <- powerball[c("drawdate", "drawday", "white1", "white2", "white3", "white4", "white5", "powerball", "jackpot_value", "jackpot_value_adj")]
+powerball$drawdate <- mdy(powerball$drawdate)
+powerball[341, 9] = 1500
+powerball[341, 10] = 1575
+powerball[342, 9] = 1200
+powerball[342, 10] = 1260
+powerball[343, 9] = 800
+powerball[343, 10] = 840
+```
+
+
+```{r, echo=FALSE}
+ggplot(powerball) +
+  geom_point(aes(x=drawdate, y=jackpot_value_adj), color= "goldenrod", size=.2)+
+  geom_point(aes(x=drawdate, y=jackpot_value), color="black", size=.2) +  labs(y="Jackpot Value", x = "Date")
+
+```
+
+## Question 1: Graph 1 
+
+```{r, echo=FALSE}
+ggplot(powerball) + geom_line(aes(x = drawdate, y = jackpot_value_adj)) + annotate("text",  x= as.Date('2012-12-15'), y = 1000, label = "January 15, 2012 - minimum jackpot doubled to 40 million", size = 3) + labs(y="Jackpot Value in Millions", x = "Date", title="Powerball Jackpots")
+```
+
+
+## Question 1: Graph 2
+```{r, echo=FALSE}
+white <- rbind(powerball$white1, powerball$white2, powerball$white3, powerball$white4, powerball$white5)
+
+hist(white,
+main = "Frequency of white ball numbers from 2010-2019",
+sub = "*Rules changed from 59 to 69 numbers in 2015",
+xlab ="Number",
+ylab = "Frequency",
+col = "gold",
+border = "black",
+labels = TRUE, 
+ylim = c(0, 500)
+) 
+```
+
+
+## Question 2: Graph 1 (USA)
+
+```{r, echo==FALSE}
+path<- file.path("gapminder_pop_data.xlsx")
+excel_sheets((path))
+population0to4<- read_excel(path, sheet = 1) 
+population5to9<- read_excel(path, sheet = 2)
+population10to14<- read_excel(path, sheet = 3)
+population15to19<- read_excel(path, sheet = 4)
+population20to39<- read_excel(path, sheet = 5)
+population40to59<- read_excel(path, sheet = 6)
+populationover60<- read_excel(path, sheet = 7)
+populationtotal<- read_excel(path, sheet = 8)
+
+population0to4<- gather(population0to4, year, pct0to4, '1950':'2050', na.rm=TRUE)
+population5to9<- gather(population5to9, year, pct5to9, '1950':'2050', na.rm=TRUE)
+population10to14<- gather(population10to14, year, pct10to14, '1950':'2050', na.rm=TRUE)
+population15to19<- gather(population15to19, year, pct15to19, '1950':'2050', na.rm=TRUE)
+population20to39<- gather(population20to39, year, pct20to39, '1950':'2050', na.rm=TRUE)
+population40to59<- gather(population40to59, year, pct40to59, '1950':'2050', na.rm=TRUE)
+populationover60<- gather(populationover60, year, pct60plus, '1950':'2050', na.rm=TRUE)
+
+population0to4<- population0to4%>%
+  dplyr::rename(country = 'Total 0-4 years (%)')
+
+population5to9<- population5to9%>%
+  dplyr::rename(country = 'Total 5-9 years (%)')
+
+population10to14<- population10to14%>%
+  dplyr::rename(country = 'Total 10-14 years (%)')
+
+population15to19<- population15to19%>%
+  dplyr::rename(country = 'Total 15-19 years (%)')
+
+population20to39<- population20to39%>%
+  dplyr::rename(country = 'Total 20-39 years (%)')
+
+population40to59<- population40to59%>%
+  dplyr::rename(country = 'Total 40-59 years (%)')
+
+populationover60<- populationover60%>%
+  dplyr::rename(country = 'Total above 60 (%)')
+
+population1<- merge(population0to4, population5to9)
+population2<- merge(population1, population10to14)
+population3<- merge(population2, population15to19)
+population4<- merge(population3, population20to39)
+population5<- merge(population4, population40to59)
+population6<- merge(population5, populationover60)
+
+poptotal<- gather(populationtotal, year, population, '1800':'2015', na.rm=TRUE)
+poptotal<- poptotal%>%
+  rename(country = "Total population")
+
+population <- merge(poptotal, population6, all = T)
+
+population<- population%>%
+  filter(year >= 1950)%>%
+  mutate(year = as.numeric(year))%>%
+  mutate(pct0to14 = pct0to4+pct5to9+pct10to14)%>%
+  mutate(pct15to59= pct15to19+pct20to39+pct40to59)%>%
+  mutate(cdr = (pct0to14/pct15to59))%>%
+  mutate(odr = (pct60plus/pct15to59))%>%
+  mutate(tdr = (pct0to14+pct60plus)/pct15to59)%>%
+  dplyr::select(country, year, population, pct0to14, pct15to59, pct60plus, cdr, odr, tdr)
+```
+
+```{r, echo=FALSE}
+USpopulation<- population%>%
+  filter(country == "United States")
+
+plot<- ggtern(USpopulation, aes(x = pct0to14, y = pct15to59, z = pct60plus)) +
+  geom_point(aes(color=year, shape = year>= 2019), alpha=0.6, size = 3)+ 
+  tern_limits(T=.9,L=0.6,R=0.6) + 
+  labs(x="Under 15", y = "15 to 59", z = "60+", title="USA population", subtitle= "displayed by age")+
+  theme_hidegrid_minor()
+
+plot
+```
+
+## Question 2: Graph 1 (Afghanistan)
+
+```{r, echo=FALSE}
+afganpopulation<- population%>%
+  filter(country == "Afghanistan")
+
+plot2<- ggtern(afganpopulation, aes(x = pct0to14, y = pct15to59, z = pct60plus)) +
+  geom_point(aes(color=year, shape = year>= 2019), alpha=0.5, size = 2)+
+  tern_limits(T=0.9,L=0.8,R=0.5) + 
+  labs(x="Under 15", y = "15 to 59", z = "60+", title="Afghanistan's population", subtitle= "displayed by age")
+plot2
+```
+
+## Question 2: Graph 2
+
+```{r, echo=FALSE}
+pop2020<- population%>%
+  filter(year==2020)
+
+w <- plot_ly(data = pop2020, z = ~tdr, x = ~odr, y = ~cdr, color = pop2020$country, opacity=0.7, hoverinfo = "text", text = ~paste("Country:", country, "<br>",                                                                               "cdr:", cdr, "<br>",
+                        "odr:", odr, "<br>",
+                        "tdr:", tdr)) %>%
+  add_markers()%>%
+  layout(title="Global Dependency Ratios",
+         scene=list(
+         xaxis=list(title="Child Dependency"),
+         yaxis=list(title="Old Age Dependency"),
+         zaxis=list(title="Total Dependency")))
+w
+
+
+```
+
+## Question 2: Graph 2 as a map of CDR
+
+```{r, include=FALSE}
+library(readxl)
+
+population0to4 <- read_excel("gapminder_pop_data.xlsx", sheet = 1)
+population5to9 <- read_excel("gapminder_pop_data.xlsx", sheet = 2)
+population10to14 <- read_excel("gapminder_pop_data.xlsx", sheet = 3)
+population15to19 <- read_excel("gapminder_pop_data.xlsx", sheet = 4)
+population20to39 <- read_excel("gapminder_pop_data.xlsx", sheet = 5)
+population40to59 <- read_excel("gapminder_pop_data.xlsx", sheet = 6)
+pct60plus <- read_excel("gapminder_pop_data.xlsx", sheet = 7)
+populationtotal <- read_excel("gapminder_pop_data.xlsx", sheet = 8)
+
+population0to9 <- cbind(population0to4[1],round(population0to4[-1] + population5to9[-1],1))
+
+pct0to14 <- cbind(population0to9[1],round(population0to9[-1] + population10to14[-1],1))
+
+population15to39 <- cbind(population15to19[1],round(population15to19[-1] + population20to39[-1],1))
+
+pct15to59 <- cbind(population15to39[1],round(population15to39[-1] + population40to59[-1],1))
+
+cdr <- cbind(pct0to14[1],round(pct0to14[-1]/pct15to59[-1],1))
+odr <- cbind(pct60plus[1],round(pct60plus[-1]/pct15to59[-1],1))
+  
+pct0to19 <- cbind(pct0to14[1],round(pct0to14[-1] + population15to19[-1],1))
+pct0to19and60 <- cbind(pct0to19[1],round(pct0to19[-1] + pct60plus[-1],1))
+
+
+tdr <- cbind(pct0to19and60[1],round(pct0to19and60[-1]/pct15to59[-1],1))
+p014 <- gather(pct0to14, year, pct0to14, '1950':'2050', na.rm = TRUE)
+
+
+p1559 <- gather(pct15to59, year, pct15to59, '1950':'2050', na.rm = TRUE)
+
+
+p60 <- gather(pct60plus, year, pct60plus, '1950':'2050', na.rm = TRUE)
+
+
+pcdr <- gather(cdr, year, cdr, '1950':'2050', na.rm = TRUE)
+
+
+podr <- gather(odr, year, odr, '1950':'2050', na.rm = TRUE)
+
+
+ptdr <- gather(tdr, year, tdr, '1950':'2050', na.rm = TRUE)
+
+
+colnames(p014)[1] <- "country"
+colnames(p1559)[1] <- "country"
+colnames(p60)[1] <- "country"
+colnames(pcdr)[1] <- "country"
+colnames(podr)[1] <- "country"
+colnames(ptdr)[1] <- "country"
+
+p1 <- merge(p014, p1559, by = c("country", "year"))
+p2 <- merge(p1, p60, by = c("country", "year"))
+p3 <- merge(p2, pcdr, by = c("country", "year"))
+p4 <- merge(p3, podr, by = c("country", "year"))
+population <- merge(p4, ptdr, by = c("country", "year"))
+
+usa <- population %>% filter(country == "United States")
+library(ggmap)
+library(maps)
+library(mapdata)
+
+ pop <- filter(population, year == 2020)
+ colnames(pop)[1] <- "region"
+ pop[40, 1] = "Democratic Republic of the Congo"
+ pop[32, 1] = "Central African Republic"
+ pop[39, 1] = "Republic of Congo"
+ pop[42, 1] = "Ivory Coast"
+pop[185, 1] = "USA"
+
+library(tidyverse)
+library(rvest)
+library(magrittr)
+library(ggmap)
+library(stringr)
+```
+
+```{r, include=FALSE}
+
+WorldData <- map_data('world')
+
+world <- map_data('world')
+
+
+p <- ggplot()
+p <- p + geom_map(data=WorldData, map=WorldData,
+                  aes(x=long, y=lat, group=group, map_id=region),
+                  fill="white", colour="#7f7f7f", size=.2)
+p <- p + geom_map(data=pop, map=WorldData,
+                  aes(fill=cdr, map_id=region),
+                  colour="#7f7f7f", size=0.5)
+p <- p + coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90))
+p <- p + scale_fill_continuous(low="pink", high="darkred", 
+                               guide="colorbar")
+p <- p + scale_y_continuous(breaks=c())
+p <- p + scale_x_continuous(breaks=c())
+p <- p + labs(fill="CDR", title="Child Dependency Ratios - All Countries", x="Projected for the year 2020", y="")
+p <- p + theme_bw()
+p <- p + theme(panel.border = element_blank())
+```
+
+```{r, echo=FALSE}
+p
+```
+
+## Question 2: Graph 2 as a map of ODR
+
+```{r, include=FALSE}
+p <- ggplot()
+p <- p + geom_map(data=WorldData, map=WorldData,
+                  aes(x=long, y=lat, group=group, map_id=region),
+                  fill="white", colour="#7f7f7f", size=0.5)
+p <- p + geom_map(data=pop, map=WorldData,
+                  aes(fill=odr, map_id=region),
+                  colour="#7f7f7f", size=0.5)
+p <- p + coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90))
+p <- p + scale_fill_continuous(low="thistle2", high="purple", 
+                               guide="colorbar")
+p <- p + scale_y_continuous(breaks=c())
+p <- p + scale_x_continuous(breaks=c())
+p <- p + labs(fill="ODR", title="Old-Age Dependency Ratio - All Countries", x="Projected for the year 2020", y="")
+p <- p + theme_bw()
+p <- p + theme(panel.border = element_blank())
+```
+
+```{r, echo=FALSE}
+p
+```
+
+## Question 2: Graph 2 as a map of TDR
+
+```{r, include=FALSE}
+p <- ggplot()
+p <- p + geom_map(data=WorldData, map=WorldData,
+                  aes(x=long, y=lat, group=group, map_id=region),
+                  fill="white", colour="#7f7f7f", size=0.5)
+p <- p + geom_map(data=pop, map=WorldData,
+                  aes(fill=tdr, map_id=region),
+                  colour="#7f7f7f", size=0.5)
+p <- p + coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90))
+p <- p + scale_fill_continuous(low="lightblue", high="darkgreen", 
+                               guide="colorbar")
+p <- p + scale_y_continuous(breaks=c())
+p <- p + scale_x_continuous(breaks=c())
+p <- p + labs(fill="TDR", title="Total Dependency Ratio - All Countries", x="Projected for the year 2020", y="")
+p <- p + theme_bw()
+p <- p + theme(panel.border = element_blank())
+```
+
+```{r, echo=FALSE}
+p
+```
+

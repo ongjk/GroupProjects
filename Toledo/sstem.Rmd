@@ -1,0 +1,206 @@
+---
+title: "Toledo Exam Analysis"
+author: "Josh Arford"
+date: "9/12/2019"
+output: ioslides_presentation
+  
+---
+
+
+```{r, include = FALSE}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(moderndive)
+library(stringr)
+library(dplyr)
+toledo <- read_xlsx("2017 Toledo - All (1).xlsx")
+
+```
+
+# Random beg title 
+
+## beg title 
+
+```{r, include =  FALSE}
+names(toledo) <- (c("banner", "score", "gpa", "hours", "matclass", "matgrade","chemclass", "chemgrade", "major", "studenttype", "prevresult"))
+
+toledo$matgrade <- factor(toledo$matgrade)
+levels(toledo$matgrade)[1] <- 4.0
+levels(toledo$matgrade)[2] <- 3.7
+levels(toledo$matgrade)[3] <- 3.3
+levels(toledo$matgrade)[4] <- 3.0
+levels(toledo$matgrade)[5] <- 2.7
+levels(toledo$matgrade)[6] <- 2.3
+levels(toledo$matgrade)[7] <- 2.0
+levels(toledo$matgrade)[8] <- 1.7
+levels(toledo$matgrade)[9] <- 1.3
+levels(toledo$matgrade)[10] <- 1.0
+levels(toledo$matgrade)[11] <- 0.7
+levels(toledo$matgrade)[12] <- 0.3
+levels(toledo$matgrade)[13] <- 0.0
+
+toledo$chemgrade <- factor(toledo$chemgrade)
+levels(toledo$chemgrade)[1] <- 4.0
+levels(toledo$chemgrade)[2] <- 3.7
+levels(toledo$chemgrade)[3] <- 3.3
+levels(toledo$chemgrade)[4] <- 3.0
+levels(toledo$chemgrade)[5] <- 2.7
+levels(toledo$chemgrade)[6] <- 2.3
+levels(toledo$chemgrade)[7] <- 2.0
+levels(toledo$chemgrade)[8] <- 1.7
+levels(toledo$chemgrade)[9] <- 1.3
+levels(toledo$chemgrade)[10] <- 1.0
+levels(toledo$chemgrade)[11] <- 0.7
+levels(toledo$chemgrade)[12] <- 0.3
+levels(toledo$chemgrade)[13] <- 0.0
+
+toledo1 <- toledo[-36, ]
+
+
+
+
+
+pass <- filter(toledo1, score > 15)
+fail <- filter(toledo1, score <= 15)
+pass14 <- filter(toledo1, score > 13)
+fail14 <- filter(toledo1, score > 13)
+
+
+```
+
+## Random title 
+
+Histogram of all Exam Scores
+```{r, echo = FALSE}
+hist(toledo1$score, main = "Distribution of All Exam Scores", breaks = 10, border = "orange", col = "blue", xlab = "Score", labels = TRUE, ylim = c(0, 10) ) 
+```
+
+## another random title 
+
+```{r, fig.height=4, fig.width=5}
+#Histogram of all Passing Exam Scores
+hist(as.numeric(pass$score), main = "Normal Distribution of Passing Exam Scores", breaks = 10, border = "orange", col = "blue", xlab = "Score", labels = TRUE ) 
+```
+
+## Another another random title 
+
+```{r, fig.height=4, fig.width=5}
+
+#Histogram of Failing Exam Scores
+hist(as.numeric(fail$score), main = "Distribution of GPA for Failing Exam Scores", breaks = 10, border = "orange", col = "blue", xlab = "Score", labels = TRUE, ylim = c(0, 20)) 
+```
+
+#
+
+```{r, echo = FALSE}
+ggplot(toledo1, aes(x = as.numeric(gpa), y = as.numeric(score))) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") + 
+  ylab("GPA") +  
+  xlab("Score") +
+  ggtitle(expression("Score vs GPA"), subtitle = "Toledo Exam") + 
+  theme(plot.background = element_rect(fill = 'black', colour = 'black')) + 
+  theme(
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +  scale_x_continuous(name="GPA", limits=c(0, 4)) + 
+  geom_smooth(method = "lm", se = F) 
+
+
+```
+
+# 
+
+## title gfw
+
+```{r}
+ggplot(toledo1, aes(x = as.numeric(chemgrade), y = as.numeric(matgrade))) + 
+  geom_point() + geom_vline(xintercept = 16, color = "green") +
+  ylab("GPA") +
+  ggtitle(expression("Score vs GPA"), subtitle = "Toledo Exam") +
+  theme(plot.background = element_rect(fill = 'black', colour = 'black')) +
+  theme(
+            plot.title = element_text(color="gold", size=18, face="bold", hjust = .5),
+            plot.subtitle = element_text(color="gold", size=10, face="bold", hjust = .5),
+            axis.title.x = element_text(color="gold", size=14, face="bold"),
+            axis.title.y = element_text(color="gold", size=14, face="bold"),
+            axis.text.x=element_text(colour="gold"),
+            axis.text.y=element_text(colour="gold")
+) +  scale_y_continuous(name="GPA", limits=c(0, 4)) +
+  geom_smooth(method = "lm", se = F)
+
+
+```
+
+
+## something
+
+```{r}
+matgrade <- c(2.7, 2, 1, 3, 3.3, 3.3, 1.3, 2.3, 2.3, 2.7, 2.7, 3.3, 2.7, 3.3, 2.7, 2, 2, 2.7, 2.7, 2.3, 2.3, 2.3, 3.7, 2.7, 2.7, 0, 3.7, 1, .3, 2)
+chemgrade <- c(3.3, 3.3, 2.3, 1, 2, 3.7, 2.3, 2.3, 1.7, 1.7, 3.3, 3.7, 2.3, .7, 3.3, 4, 1.3, .7, 3.7, 3, 4, 2.7, 2, 3.3, 3.7, .3, 3, 1.7, 1, 3)
+score <- c(18, 11, 13, 18, 15, 18, 13, 11, 12, 11, 10, 13, 11, 13, 16, 17, 16, 11, 16, 14, 15, 12, 14, 15, 14, 12, 10, 12, 11, 13)
+
+matchem <- data.frame(matgrade, chemgrade, score)
+```
+
+
+#
+
+```{r}
+ggplot(matchem, aes(x = matgrade, y = score)) + geom_point() + geom_smooth(method = lm)
+```
+
+#
+
+```{r}
+ggplot(matchem, aes(x = chemgrade, y = score)) + geom_point() + geom_smooth(method = lm)
+```
+
+
+
+
+
+#
+
+
+What if analyis
+Logistical Regression
+Look at what it should be
+
+
+SAT scores - must be 550 or greater
+25th percentile - 540
+75th percentile - 630
+
+# 
+
+70 percent of people have an SAT score high enough to pass Toledo exam
+
+ACT Scores - must be 22 or greater
+25th percentile - 22
+75th percentile - 26
+
+75 percent of people have an ACT score high enough to pass Toledo exam
+
+
+
+
+# 
+
+```{r, fig.height=4, fig.width=5}
+#Histogram of all Passing Exam Scores
+hist(as.numeric(pass14$score), main = "Normal Distribution of Passing Exam Scores", breaks = 10, border = "orange", col = "blue", xlab = "Score", labels = TRUE ) 
+```
+
+# 
+
+```{r, fig.height=4, fig.width=5}
+
+#Histogram of Failing Exam Scores
+hist(as.numeric(fail14$score), main = "Distribution of GPA for Failing Exam Scores", breaks = 10, border = "orange", col = "blue", xlab = "Score", labels = TRUE, ylim = c(0, 20)) 
+```
+

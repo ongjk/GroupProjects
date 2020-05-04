@@ -1,0 +1,23 @@
+---
+title: "Appstate_basketball"
+author: "Josh Arford"
+date: "9/3/2019"
+output: html_document
+---
+
+```{r}
+library("readxl")
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+# xlsx files
+data <- read_excel("Firstbeat Data Export Summer Data.xlsx")
+
+names(data) <- c("Athlete name", "Date", "Duration","Average HR Max (%)", "TRIMP Index" )
+data2 <- data %>% separate(Date, c("Date", "Time"), sep = "([ ])")
+data2 %>% separate(Duration, c("x", "Duration"), sep = "([ ])")
+data3 <- data2[-4]
+
+
+
+```

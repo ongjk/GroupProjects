@@ -1,0 +1,154 @@
+---
+title: "Untitled"
+author: "Jefferson Ong"
+date: "2/25/2020"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+
+```{r}
+red <- read_delim("winequality-red.csv", delim = ';')
+white <- read_delim("winequality-white.csv", delim = ';')
+
+# Add red category to red data
+temp_red <- red %>% 
+  mutate(type = 0)
+
+# Add white category to white data
+temp_white <- white %>% 
+  mutate(type = 1)
+
+# Combine data into super wine data! 
+wine <- bind_rows(temp_red, temp_white)
+
+# Remove spaces and replace with underscores to be tidy
+colnames(wine) <- gsub("\\s", "_", colnames(wine))
+wine$type <- as.factor(wine$type)
+```
+
+```{r}
+str(wine)
+```
+
+```{r}
+model1 <- lm(quality ~ . , wine)
+summary(model1)
+
+par(mfrow =c(2,2))
+plot(model1)
+```
+```{r}
+library(car)
+vif(model1)
+```
+
+```{r}
+model2 <- lm(quality ~ . -density, wine)
+summary(model2)
+vif(model2)
+```
+
+```{r}
+model3 <- lm(quality^2 ~ . -density -type -fixed_acidity -citric_acid + I(chlorides^2), wine)
+summary(model3)
+par(mfrow = c(2,2))
+plot(model3)
+```
+
+
+```{r}
+sam <- lm(quality ~ . + fixed_acidity*type + density*alcohol, wine)
+summary(sam)
+samaug <- augment(sam)
+str(samaug)
+par(mfrow = c(2,2))
+
+plot(sam)
+```
+
+```{r}
+#library(rethinking)
+library(ggExtra)
+
+
+
+p <- wine %>%
+    ggplot(aes(x = quality, y = alcohol) ) +
+    geom_point(size = 2, alpha = 0.3) +
+    geom_smooth(method = "lm", colour = "black") +
+    theme_bw(base_size = 12)
+
+ggMarginal(p, type = "histogram")
+```
+
+
+```{r}
+pairs(~. ,wine)
+```
+
+
+```{r}
+mod <- lm(quality ~ total_sulfur_dioxide + type, data = wine)
+library(broom)
+augmented_mod <- augment(mod)
+
+plot <- ggplot(augmented_mod, aes(x = total_sulfur_dioxide, y = quality, color = type)) +
+  geom_point() +
+  geom_line(aes(x = total_sulfur_dioxide, y = .fitted)) +
+  theme_bw()
+plot
+```
+
+
+```{r}
+modL <- glm(type ~ total_sulfur_dioxide, data = wine, family = binomial)
+summary(modL)
+```
+
+```{r}
+glm <- glm(type ~ alcohol, data = wine, family = binomial)
+
+range(wine$alcohol)
+xalcohol <- seq(7, 15, 0.01)
+yalcohol <- predict(glm, list(alcohol = xalcohol), type = "response")
+plot(wine$alcohol, wine$type, xlab = "Alcohol", ylab = "Type") 
+lines(xalcohol, yalcohol)
+```
+
+
+
+
+```{r}
+g <- glm(type ~ . -density -quality -citric_acid, family = binomial, wine)
+summary(g)
+glmmodel <- augment(g)
+```
+
+
+
+```{r}
+g <- glm(type ~ . -density -quality -citric_acid, family = binomial, wine)
+predicted <- data.frame(probability_of_type = g$fitted.values, type = wine$type)
+predicted <- predicted[order(predicted$probability_of_type, decreasing = F), ]
+predicted$rank <- 1:nrow(predicted)
+
+ggplot(predicted, aes(x = rank, y = probability_of_type)) +
+  geom_point(aes(color = type), alpha = 1, shape = 1, stroke = 2) +
+  xlab("Index") +
+  ylab("Predicted probability of type of wine")
+```
+
+
+
+
+
+
+
+
+

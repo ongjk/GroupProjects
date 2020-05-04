@@ -1,0 +1,89 @@
+---
+title: "nflstats"
+author: "Josh Arford"
+date: "10/1/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library('rvest')
+
+url <- 'https://www.espn.com/nfl/stats/player/_/table/passing/sort/passingYards/dir/desc'
+webpage <- read_html(url)
+sb_table <- html_nodes(webpage, 'table')
+sb <- html_table(sb_table)
+fb <- as.data.frame(sb)
+fb       
+fb$YDS = as.numeric(gsub("[\\,,]", "", fb$YDS))
+fb$YDS <- as.numeric(fb$YDS)
+
+```
+
+ATT = Number of passing attempts
+
+COMP = Number of completions
+
+INT = Interceptions
+
+TD = Touchdown passes
+
+YDS = Passing yards
+
+a=(CMP/ATT−0.3)×5
+
+b=(YDS/ATT−3)×0.25
+
+c=(TD/ATT)×20
+
+d=2.375−(INT/ATT×25)
+
+
+```{r}
+fb <- fb %>%
+  mutate( a = (CMP/ATT - 0.3) * 5,
+ 
+          b = (YDS/ATT - 3) * 0.25,
+
+          c = (TD/ATT) * 20,
+
+          d = 2.375 - (INT/ATT * 25),
+          
+          pr = round((((a + b + c + d)/6) * 100), 1)
+    
+  )
+
+fb
+# fb$pr <- as.numeric(fb$pr)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

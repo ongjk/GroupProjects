@@ -1,0 +1,241 @@
+---
+title: "Vandy"
+author: "Josh"
+date: "9/16/2019"
+output:
+  html_document:
+    highlight: tango
+    theme: lumen
+    toc: yes
+    toc_depth: 4
+---
+
+```{r Setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = FALSE, message = FALSE, warning = FALSE)
+
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(readr)
+library(plotly)
+library(plyr)
+vandy1 <- read_csv("pitcher1_L.csv")
+
+vandy2 <- read_csv("pitcher2_L.csv")
+vandy3 <- read_csv("pitcher3_R.csv")
+vandy1 <- vandy1[!is.na(vandy1$RelSpeed), ]
+vandy2 <- vandy2[!is.na(vandy2$RelSpeed), ]
+vandy3 <- vandy3[!is.na(vandy3$RelSpeed), ]
+vandy_1 <- vandy1 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vandy_2 <- vandy2 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vandy_3 <- vandy3 %>%
+  select(TaggedPitchType, PlateLocHeight, PlateLocSide, PitchCall)
+vann <- rbind(vandy_1, vandy_2, vandy_3)
+x <- c(-.95,.95,.95,-.95,-.95)
+z <- c(1.6,1.6,3.5,3.5,1.6)
+sz <- data.frame(x, z)
+
+
+x <- c(-.95,.95,.95,-.95,-.95)
+y <- c(1.6,1.6,3.5,3.5,1.6)
+sz <- data.frame(x, y)
+
+x1 <- c(-.95, -.95, 0, .95, .95, -.95)
+y1 <- c(0, .15, .25, .15, 0, 0)
+hp <- data.frame(x1, y1)
+
+x2 <- c(1.61, 3.11, 3.11, 1.61, 1.61)
+y2 <- c(0, 0, 5.5, 5.5, 0)
+rhb <- data.frame(x2, y2)
+
+x4 <- c(-1.61, -3.11, -3.11, -1.61, -1.61)
+y4 <- c(0, 0, 5.5, 5.5, 0)
+lhb <- data.frame(x2, y2)
+
+x3 <- c(2.36)
+y3 <- c(2.75)
+
+x5 <- c(-2.36)
+y5 <- c(2.75)
+cbPalette <- c("#999999", "#E69F00",  "#009E73",  "#0072B2", "#D55E00", "#CC79A7", "#56B4E9", "#F0E442")
+```
+
+
+# Comparing Pitch Velocity
+
+## Calculating Average Pitch Velocity by Pitch Type for Pitcher 1 (Curveball, Fastball, Slider, ChangeUp)
+
+```{r}
+vandy1curve <- filter(vandy1, TaggedPitchType == "Curveball")
+mean(vandy1curve$RelSpeed)
+vandy1fast <- filter(vandy1, TaggedPitchType == "Fastball")
+mean(vandy1fast$RelSpeed)
+vandy1change <- filter(vandy1, TaggedPitchType == "Slider")
+mean(vandy1change$RelSpeed)
+vandy1slide <- filter(vandy1, TaggedPitchType == "ChangeUp")
+mean(vandy1slide$RelSpeed)
+```
+
+
+
+
+## Calculating Average Pitch Velocity by Pitch Type for Pitcher 2
+
+```{r}
+vandy2curve <- filter(vandy2, TaggedPitchType == "Curveball")
+mean(vandy2curve$RelSpeed)
+vandy2fast <- filter(vandy2, TaggedPitchType == "Fastball")
+mean(vandy2fast$RelSpeed)
+vandy2change <- filter(vandy2, TaggedPitchType == "Slider")
+mean(vandy2change$RelSpeed)
+vandy2slide <- filter(vandy2, TaggedPitchType == "ChangeUp")
+mean(vandy2slide$RelSpeed)
+```
+
+
+## Calculating Average Pitch Velovity by Pitch Type for Pitcher 3
+
+```{r}
+vandy3curve <- filter(vandy3, TaggedPitchType == "Curveball")
+mean(vandy3curve$RelSpeed)
+vandy3fast <- filter(vandy3, TaggedPitchType == "Fastball")
+mean(vandy3fast$RelSpeed)
+vandy3change <- filter(vandy3, TaggedPitchType == "Slider")
+mean(vandy3change$RelSpeed)
+vandy3slide <- filter(vandy3, TaggedPitchType == "ChangeUp")
+mean(vandy3slide$RelSpeed)
+```
+
+Pitcher 1 and Pitcher 2 have very similar pitchspeeds. Pitcher 3 easilly has the highest speed in every sinle pitch.
+
+# Analyzing Strike Zone Pitch Location Plots
+
+
+## Strike Zone Pitch Location Pitcher 1
+
+```{r, echo=FALSE}
+v <- ggplot() +
+  geom_path(data = sz, aes(x = x, y = y)) +
+  geom_path(data = rhb, aes(x = x2, y = y2), color = "lightgray") +
+  geom_path(data = lhb, aes(x = x4, y = y4), color = "lightgray") +
+  geom_text(mapping = aes(x = x3, y = y3), label = paste("RHB"), color = "lightgray") +
+  geom_text(mapping = aes(x = x5, y = y5), label = paste("LHB"), color = "lightgray") +
+  geom_polygon(hp, mapping = aes(x = x1, y = y1), color = "black", fill = "white") +
+  coord_equal() +
+  ggtitle("Vandy Pitchers by Pitch Type") +
+  ##geom_point(data = filter(vandy_2, PitchCall == "BallCalled"),
+  geom_point(data = vandy_1,
+             aes(x = PlateLocSide, y = PlateLocHeight, color = TaggedPitchType)) +
+  scale_color_discrete(limits = c("Fastball" ,"ChangeUp", "Splitter", "Curveball", "Slider", "Sinker")) +
+  coord_cartesian(xlim = c(-4.5, 4.5), ylim = c(0, 5.5)) +
+  theme(axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.background = element_blank(),
+      legend.title = element_blank())
+ggplotly(v)
+```
+
+## Strike Zone Pitch Location Pitcher 2
+
+```{r, echo = FALSE}
+w <- ggplot() +
+  geom_path(data = sz, aes(x = x, y = y)) +
+  geom_path(data = rhb, aes(x = x2, y = y2), color = "lightgray") +
+  geom_path(data = lhb, aes(x = x4, y = y4), color = "lightgray") +
+  geom_text(mapping = aes(x = x3, y = y3), label = paste("RHB"), color = "lightgray") +
+  geom_text(mapping = aes(x = x5, y = y5), label = paste("LHB"), color = "lightgray") +
+  geom_polygon(hp, mapping = aes(x = x1, y = y1), color = "black", fill = "white") +
+  coord_equal() +
+  ggtitle("Vandy Pitchers by Pitch Type") +
+  ##geom_point(data = filter(vandy_2, PitchCall == "BallCalled"),
+  geom_point(data = vandy_2,
+             aes(x = PlateLocSide, y = PlateLocHeight, color = TaggedPitchType)) +
+  scale_color_discrete(limits = c("Fastball" ,"ChangeUp", "Splitter", "Curveball", "Slider", "Sinker")) +
+  coord_cartesian(xlim = c(-4.5, 4.5), ylim = c(0, 5.5)) +
+  theme(axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.background = element_blank(),
+      legend.title = element_blank())
+ggplotly(w)
+```
+
+## Strike Zone Pitch Location Pitcher 3
+
+```{r}
+u <- ggplot() +
+  geom_path(data = sz, aes(x = x, y = y)) +
+  geom_path(data = rhb, aes(x = x2, y = y2), color = "lightgray") +
+  geom_path(data = lhb, aes(x = x4, y = y4), color = "lightgray") +
+  geom_text(mapping = aes(x = x3, y = y3), label = paste("RHB"), color = "lightgray") +
+  geom_text(mapping = aes(x = x5, y = y5), label = paste("LHB"), color = "lightgray") +
+  geom_polygon(hp, mapping = aes(x = x1, y = y1), color = "black", fill = "white") +
+  coord_equal() +
+  ggtitle("Vandy Pitchers by Pitch Type") +
+  ##geom_point(data = filter(vandy_2, PitchCall == "BallCalled"),
+  geom_point(data = vandy_3,
+             aes(x = PlateLocSide, y = PlateLocHeight, color = TaggedPitchType)) +
+  scale_color_discrete(limits = c("Fastball" ,"ChangeUp", "Splitter", "Curveball", "Slider", "Sinker")) +
+  coord_cartesian(xlim = c(-4.5, 4.5), ylim = c(0, 5.5)) +
+  theme(axis.line = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      plot.background = element_blank(),
+      legend.title = element_blank())
+ggplotly(u)
+```
+
+
+One thing we noticed when analyzing fastballs was that pitcher 2 and 3 were in the strike zone while pitcher 1 was a bit less accurate. Pitcher 1 throws the most change ups by far and seems to consistently in the strike sone. As far as the curveball goes pitcher 2 and 3 are pretty conistent on placement while pitcher is very off. All of this tells us that pitcher 2 and 3 are more consistent while pitcher 1 is not.
+
+
+
+```{r}
+ggplot(vandy1, aes(x = PitchCall)) +
+geom_bar(fill = "blue", color = "orange") + facet_wrap(~ TaggedPitchType) +
+scale_x_discrete(label=abbreviate) +
+  theme_dark()
+```
+
+```{r}
+ggplot(vandy2, aes(x = PitchCall)) +
+geom_bar(fill = "blue", color = "orange") + facet_wrap(~ TaggedPitchType) +
+scale_x_discrete(label=abbreviate) +
+  theme_dark()
+```
+
+
+
+```{r}
+ggplot(vandy3, aes(x = PitchCall)) +
+geom_bar(fill = "blue", color = "orange") + facet_wrap(~ TaggedPitchType) +
+scale_x_discrete(label=abbreviate) +
+  theme_dark()
+```
+
+
+From these bar graphs we can tell that pitcher 2 tends to throw more strikes than balls. This is not the case with pitcher 1 and 3. Pitcher 3 seems to have the most variety in his game as the other 2 don't throw many curveballs or change-ups. Pitcher 2 also has the least ammount of balls in play so we have to give pither 2 the edge on this one. In conclusion pitcher 2 and 3 seem to be more skilled than pitcher 1. Pitcher 3 is more versatile as a pitcher but pitcher 2 has better outcomes.
