@@ -1,0 +1,227 @@
+---
+title: "Presentation"
+author: "Jefferson Ong"
+date: "5/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F, comment = NA)
+```
+
+```{r}
+library(readxl)
+library(gapminder)
+library(tidyverse)
+library(kableExtra)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(png)
+library(grid)
+```
+
+
+```{r}
+library(readxl)
+Ticket2019f <- read_excel("Ticket2019f.xlsx")
+str(Ticket2019f)
+```
+
+____
+
+# Josh talks about how he gathered the data*
+
+-ESPN, etc. 
+____
+
+
+```{r}
+ticket <- read_excel("Ticket2019f.xlsx")
+  
+```
+
+
+```{r}
+ggplot(ticket, aes(x = attpct, y = winpct)) + 
+  geom_point(col = "gold", shape = 19, size = 3) +
+  ggtitle(expression("Win Percentage vs Attendance Percentage")) + 
+  xlab("Attendance") +
+  ylab("Win") + 
+  geom_smooth(method = "lm", se = FALSE, col = "black") + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+
+cor.test(ticket$attpct, ticket$winpct)
+```
+
+```{r, echo=FALSE}
+ggplot(ticket, aes(x = attpct, y = beerprice)) + 
+  geom_point(col = "darkgreen", shape = 19, size = 3) +
+  ggtitle(expression("Win Percentage vs Attendance Percentage")) + 
+  xlab("Attendance") +
+  ylab("Beer Price") + 
+  geom_smooth(method = "lm", se = FALSE, col = "orange") + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+
+cor.test(ticket$attpct, ticket$beerprice)
+```
+
+```{r}
+ggplot(ticket, aes(x = attpct, y = ticketprice)) + 
+  geom_point(col = "red", shape = 19, size = 3) +
+  ggtitle(expression("ticket Price vs Attendance Percentage")) + 
+  xlab("Attendance") +
+  ylab("Ticket Price") + 
+  geom_smooth(method = "lm", se = FALSE, col = "black") + theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+
+cor.test(ticket$attpct, ticket$ticketprice)
+```
+
+
+```{r}
+library(tidyverse)
+ticket <- Ticket2019f %>%
+  select(-lat, -long, -team)
+ticket <- as.data.frame(ticket)
+str(ticket)
+```
+
+# EDA
+
+```{r}
+library("PerformanceAnalytics")
+chart.Correlation(ticket[c(1, 2:5)])
+```
+
+
+
+# Linear Regression using `attpct` as a response variable against all other predictors
+
+```{r}
+library(car)
+linear <- lm(attpct ~ . , ticket)
+summary(linear)
+vif(linear)
+par(mfrow = c(2,2))
+plot(linear)
+```
+
+
+
+# Training/Test
+
+```{r}
+p = .8
+index <- sample(nrow(ticket), nrow(ticket) * p, replace = FALSE)
+train <- ticket[index,]
+test <- ticket[-index,]
+library(caret)
+
+linear <- lm(attpct ~ ., train)
+summary(linear)
+probabilities <- predict(linear, newdata = test, type = "response")
+
+sqrt(mean((probabilities - test$attpct)^2))
+```
+
+Partition Percentage: 80/20
+
+RMSE: 3.764136
+
+_________
+
+
+```{r}
+trControl = trainControl(
+  method = "repeatedcv", number = 5,
+  repeats = 5, verboseIter = TRUE
+)
+# Fit lm model using 10-fold CV: model
+model <- train(
+  attpct ~ ., data = ticket,
+  method = "lm",
+  trControl = trControl
+  )
+
+
+model
+```
+
+Same cross validation: 5x5 for all models
+
+# linear
+
+```{r}
+model$finalModel 
+summary(model)
+```
+
+
+# Random Forest
+
+ 
+
+```{r}
+model <- train(
+  attpct ~ ., data = ticket,
+  tuneLength = 4,
+  method = "ranger",
+  trControl = trControl
+)
+
+model
+```
+
+```{r}
+model$finalModel 
+summary(model)
+plot(model)
+```
+
+# Lasso/Ridge Regression
+
+alpha = 0 (ridge)
+
+alpha = 1 (lasso)
+
+
+```{r}
+model <- train(
+  attpct ~ ., data = ticket,
+  tuneGrid = expand.grid(alpha  = 0:1, 
+                         lambda = seq(0.0001, 1, length = 20)),
+  method = "glmnet",
+  trControl = trControl
+)
+
+model
+```
+
+```{r}
+plot(model)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
